@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlowStudio — WhatsApp Automation Builder</title>
+<meta name="description" content="A mini visual automation builder for WhatsApp Cloud API — chain trigger, message and delay blocks, run them from your browser with your own Meta credentials (BYOC). No server.">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body{background:#0B1F3A;color:#EAF1F8;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+  .card{background:#10294D;border:1px solid #1E3A5F;border-radius:16px}
+  .accent{color:#FFB020}
+  input,select,textarea{background:#0B1F3A;border:1px solid #1E3A5F;border-radius:10px;padding:10px 12px;width:100%;color:#EAF1F8;font-size:14px}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:#FFB020}
+  label{font-size:12px;letter-spacing:.05em;color:#8FA6BC;display:block;margin:10px 0 4px}
+  .btn{background:#FFB020;color:#0B1F3A;font-weight:700;border-radius:10px;padding:10px 18px}
+  .btn:disabled{opacity:.5}
+  .btn-ghost{background:transparent;border:1px solid #1E3A5F;color:#BECDDE;border-radius:10px;padding:9px 14px;font-size:13px}
+  .btn-ghost:disabled{opacity:.4}
+  .err{background:#3A1420;border:1px solid #7F1D2D;color:#FCA5A5;border-radius:10px;padding:10px 12px;font-size:13.5px}
+  .warn{background:#3A2C10;border:1px solid #FFB020;color:#FDE9C0;border-radius:10px;padding:10px 12px;font-size:13.5px}
+  .okbox{background:#0F2E1D;border:1px solid #1F7A44;color:#A7F3C7;border-radius:10px;padding:10px 12px;font-size:13.5px}
+  .ok{color:#4ADE80}
+  .block{background:#10294D;border:1px solid #1E3A5F;border-radius:14px;padding:14px}
+  .block-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .block-type{font-size:11px;letter-spacing:.08em;padding:3px 9px;border-radius:999px;border:1px solid #FFB020;color:#FFB020;font-weight:700}
+  .block-type.green{border-color:#4ADE80;color:#4ADE80}
+  .block-type.blue{border-color:#7DD3FC;color:#7DD3FC}
+  .mini-btn{background:#0B1F3A;border:1px solid #1E3A5F;color:#BECDDE;border-radius:8px;padding:4px 10px;font-size:13px;line-height:1}
+  .mini-btn:disabled{opacity:.35}
+  .connector{width:2px;height:22px;background:#FFB020;margin:0 auto;opacity:.7}
+  .connector-arrow{text-align:center;color:#FFB020;font-size:12px;line-height:1;margin-top:-4px}
+  #log{background:#071426;border:1px solid #1E3A5F;border-radius:12px;padding:12px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.65;height:280px;overflow-y:auto;white-space:pre-wrap;word-break:break-word}
+  .log-info{color:#BECDDE}.log-ok{color:#4ADE80}.log-err{color:#FCA5A5}.log-step{color:#FFB020}
+</style>
+</head>
+<body class="min-h-screen">
+<div class="max-w-3xl mx-auto px-4 py-6">
+  <a href="../" class="text-sm accent">← All tools</a>
+  <h1 class="text-3xl font-extrabold mt-2">Flow<span class="accent">Studio</span></h1>
+  <p class="text-sm mt-1" style="color:#BECDDE">WhatsApp automation ka visual builder — n8n style. Blocks jodo (trigger → message → delay), apni <strong class="text-white">khud ki Meta WhatsApp Cloud API</strong> details daalo, aur flow yahin browser se chalao. <strong class="text-white">BYOC</strong> — Bring Your Own Credentials.</p>
+
+  <!-- CONNECT PANEL -->
+  <div class="card p-4 mt-5">
+    <div class="flex items-center justify-between">
+      <h2 class="font-bold text-sm tracking-wide">1 · CONNECT — META WHATSAPP CLOUD API</h2>
+      <span id="connStatus" class="text-xs"></span>
+    </div>
+    <div class="grid md:grid-cols-3 gap-3">
+      <div><label>Phone Number ID</label><input type="text" id="phoneId" placeholder="e.g. 123456789012345" autocomplete="off"></div>
+      <div><label>Access Token</label><input type="password" id="token" placeholder="EAAB..." autocomplete="off"></div>
+      <div><label>Graph API version</label><input type="text" id="apiVer" value="v21.0"></div>
+    </div>
+    <div class="flex flex-wrap items-center gap-3 mt-3">
+      <button class="btn-ghost" id="saveConnBtn" type="button">Save in this browser</button>
+      <button class="btn" id="testConnBtn" type="button">Test connection</button>
+      <p class="text-xs" style="color:#8FA6BC">Credentials sirf tumhare browser (localStorage) me rehte hain — sirf Meta ki API ko bheje jate hain, kisi aur ko nahi. Details Meta for Developers → WhatsApp → API Setup me milte hain.</p>
+    </div>
+    <div id="connMsg" class="mt-3"></div>
+  </div>
+
+  <!-- SAFETY -->
+  <div class="warn mt-4">
+    <strong>⚠️ Pehle ye samajh lo:</strong> Message sirf unhi numbers par bhejo jinhone tumse WhatsApp par baat karne ki <strong>permission (opt-in)</strong> di hai. Bina permission ke bulk/spam messages bhejne par <strong>WhatsApp tumhara number ban kar sakta hai</strong> — ye Meta ka rule hai. Isi liye: ek run me <strong>max 20 recipients</strong>, har send ke beech automatic gap, aur naya message hamesha <strong>template</strong> se shuru hota hai (yahi compliant tareeka hai). Ye tool koi number scrape ya import nahi karta — number tum khud type karte ho.
+  </div>
+  <div class="card p-3 mt-3 text-xs" style="color:#8FA6BC">
+    <strong class="text-white">Honest limit:</strong> Browser edition — flows run while this page is open; there is no server or background scheduler. Page band = flow band. Free-text messages sirf tab deliver hote hain jab customer ne pichhle 24 ghante me tumhe message kiya ho (WhatsApp ka 24-hour window rule) — naye customers ke liye hamesha template message use karo.
+  </div>
+
+  <!-- RECIPES -->
+  <div class="card p-4 mt-5">
+    <h2 class="font-bold text-sm tracking-wide">2 · RECIPES — EK CLICK ME READY FLOW</h2>
+    <div class="flex flex-wrap gap-2 mt-3">
+      <button class="btn-ghost recipeBtn" type="button" data-recipe="welcome">👋 Welcome New Lead</button>
+      <button class="btn-ghost recipeBtn" type="button" data-recipe="reminder">⏰ Appointment Reminder</button>
+      <button class="btn-ghost recipeBtn" type="button" data-recipe="offer">🎁 Offer to Opted-in Customers</button>
+    </div>
+    <p class="text-xs mt-2" style="color:#8FA6BC">Recipe load karne se neeche ka flow badal jayega. Template names apne Meta account ke <em>approved</em> templates se badal lena — <span class="accent">hello_world</span> Meta ka free test template hai jo har account par chalta hai.</p>
+  </div>
+
+  <!-- FLOW BUILDER -->
+  <div class="mt-6">
+    <h2 class="font-bold text-sm tracking-wide">3 · FLOW BUILDER — BLOCKS KA CHAIN</h2>
+    <div id="flowWrap" class="mt-3"></div>
+    <div class="flex flex-wrap gap-2 mt-3">
+      <button class="btn-ghost" id="addSendBtn" type="button">+ Send Message block</button>
+      <button class="btn-ghost" id="addDelayBtn" type="button">+ Delay block</button>
+    </div>
+  </div>
+
+  <!-- VARIABLES + RECIPIENTS -->
+  <div class="card p-4 mt-6">
+    <h2 class="font-bold text-sm tracking-wide">4 · VARIABLES AUR RECIPIENTS</h2>
+    <div class="grid md:grid-cols-2 gap-3">
+      <div><label>{{name}} — customer name</label><input type="text" id="v_name" value="Rahul"></div>
+      <div><label>{{business}} — business name</label><input type="text" id="v_business" value="Glow &amp; Shine Salon"></div>
+      <div><label>{{offer}} — offer detail</label><input type="text" id="v_offer" value="Haircut + Beard combo sirf ₹249, is Sunday tak"></div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label>{{date}}</label><input type="text" id="v_date" value="kal"></div>
+        <div><label>{{time}}</label><input type="text" id="v_time" value="11:00 AM"></div>
+      </div>
+    </div>
+    <label>Recipients — WhatsApp numbers (country code ke saath, ek line me ek, ya comma se). Sirf apna/test number pehle try karo. Max 20.</label>
+    <textarea id="recipients" rows="3" placeholder="919876543210&#10;919123456780"></textarea>
+    <div class="flex flex-wrap items-center gap-3 mt-3">
+      <button class="btn" id="runBtn" type="button">▶ Run flow</button>
+      <button class="btn-ghost" id="stopBtn" type="button" disabled>Stop</button>
+      <span id="runMsg" class="text-xs" style="color:#8FA6BC"></span>
+    </div>
+  </div>
+
+  <!-- LEAD FORM TRIGGER -->
+  <div class="card p-4 mt-5">
+    <h2 class="font-bold text-sm tracking-wide">5 · LEAD FORM TRIGGER — DEMO</h2>
+    <p class="text-xs mt-1" style="color:#8FA6BC">Ye chhota form tumhari website ke lead form jaisa hai. Customer ke submit karte hi flow usi ke number par chalega — variables me uska <em>name</em> aur <em>message</em> aa jayega. Asli website par aisa form tumhare server se judega; yahan demo ke liye sab browser me hota hai.</p>
+    <div class="grid md:grid-cols-3 gap-3">
+      <div><label>Customer name</label><input type="text" id="leadName" placeholder="e.g. Priya"></div>
+      <div><label>Customer WhatsApp number</label><input type="text" id="leadPhone" placeholder="91 ke saath"></div>
+      <div><label>Customer message</label><input type="text" id="leadMsg" placeholder="e.g. Haircut book karna hai"></div>
+    </div>
+    <div class="mt-3"><button class="btn" id="leadBtn" type="button">Submit lead → Run flow</button></div>
+    <div id="leadErr" class="mt-3"></div>
+  </div>
+
+  <!-- LIVE LOG -->
+  <div class="mt-6">
+    <div class="flex items-center justify-between">
+      <h2 class="font-bold text-sm tracking-wide">LIVE LOG</h2>
+      <button class="btn-ghost" id="clearLogBtn" type="button">Clear log</button>
+    </div>
+    <div id="log" class="mt-2"></div>
+  </div>
+
+  <footer class="text-center text-xs mt-10 pb-6" style="color:#8FA6BC">SatyamLabs AI Agents Lab · Built by Satyam Kumar · FlowStudio tumhare khud ke Meta credentials se, tumhare browser se chalta hai — humara koi server beech me nahi hai</footer>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const LS={phone:'fs_phone_id',token:'fs_token',ver:'fs_ver',flow:'fs_flow',vars:'fs_vars',recips:'fs_recips'};
+let uid=1;
+function nid(){return 'b'+(uid++);}
+const DEFAULT_FLOW=[
+  {id:nid(),type:'trigger',mode:'manual'},
+  {id:nid(),type:'send',mode:'template',tpl:'hello_world',lang:'en_US',params:'',text:''}
+];
+let flow=loadFlow();
+let running=false,abortRun=false;
+
+/* ---------- persistence ---------- */
+function loadFlow(){
+  try{const f=JSON.parse(localStorage.getItem(LS.flow));if(Array.isArray(f)&&f.length&&f[0].type==='trigger'){f.forEach(b=>{const n=parseInt((b.id||'').slice(1));if(n>=uid)uid=n+1;});return f;}}catch(e){}
+  return JSON.parse(JSON.stringify(DEFAULT_FLOW));
+}
+function saveFlow(){localStorage.setItem(LS.flow,JSON.stringify(flow));}
+function loadConn(){$('phoneId').value=localStorage.getItem(LS.phone)||'';$('token').value=localStorage.getItem(LS.token)||'';$('apiVer').value=localStorage.getItem(LS.ver)||'v21.0';updateConnStatus();}
+function saveConn(){localStorage.setItem(LS.phone,$('phoneId').value.trim());localStorage.setItem(LS.token,$('token').value.trim());localStorage.setItem(LS.ver,$('apiVer').value.trim()||'v21.0');updateConnStatus();log('Credentials is browser me save ho gaye (localStorage).','info');}
+function updateConnStatus(){const has=!!($('phoneId').value.trim()&&$('token').value.trim());$('connStatus').textContent=has?'Saved in this browser':'Not set';$('connStatus').style.color=has?'#4ADE80':'#FFB020';}
+function creds(){return{phone:$('phoneId').value.trim(),token:$('token').value.trim(),ver:($('apiVer').value.trim()||'v21.0').replace(/^\/+|\/+$/g,'')};}
+function loadVars(){try{const v=JSON.parse(localStorage.getItem(LS.vars));if(v){['name','business','offer','date','time'].forEach(k=>{if(v[k]!=null&&$('v_'+k))$('v_'+k).value=v[k];});}}catch(e){}$('recipients').value=localStorage.getItem(LS.recips)||'';}
+function saveVars(){const v={};['name','business','offer','date','time'].forEach(k=>v[k]=$('v_'+k).value);localStorage.setItem(LS.vars,JSON.stringify(v));localStorage.setItem(LS.recips,$('recipients').value);}
+function getVars(extra){const v={name:$('v_name').value,business:$('v_business').value,offer:$('v_offer').value,date:$('v_date').value,time:$('v_time').value,message:''};if(extra)Object.assign(v,extra);return v;}
+function fillVars(str,vars){return (str||'').replace(/\{\{\s*(\w+)\s*\}\}/g,(m,k)=>vars[k]!=null?vars[k]:m);}
+
+/* ---------- log ---------- */
+function stamp(){const d=new Date();return d.toTimeString().slice(0,8);}
+function log(msg,cls){
+  const line=document.createElement('div');line.className='log-'+(cls||'info');
+  line.textContent='['+stamp()+'] '+msg;
+  const box=$('log');box.appendChild(line);box.scrollTop=box.scrollHeight;
+}
+
+/* ---------- flow rendering ---------- */
+function esc(s){return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+function blockHTML(b,i){
+  const total=flow.length;
+  const controls=b.type==='trigger'
+    ? '<span class="text-xs" style="color:#8FA6BC">hamesha pehla block</span>'
+    : '<button class="mini-btn" data-act="up" data-id="'+b.id+'" '+(i<=1?'disabled':'')+'>↑</button>'
+      +' <button class="mini-btn" data-act="down" data-id="'+b.id+'" '+(i>=total-1?'disabled':'')+'>↓</button>'
+      +' <button class="mini-btn" data-act="del" data-id="'+b.id+'">✕</button>';
+  let inner='';
+  if(b.type==='trigger'){
+    inner='<label>Trigger type</label><select data-f="mode" data-id="'+b.id+'">'
+      +'<option value="manual" '+(b.mode==='manual'?'selected':'')+'>Manual run — Run button se chalega</option>'
+      +'<option value="lead" '+(b.mode==='lead'?'selected':'')+'>Lead Form — neeche wale form ke submit par chalega</option></select>'
+      +'<p class="text-xs mt-2" style="color:#8FA6BC">Flow yahin se shuru hota hai. Manual = tum Run dabao. Lead Form = customer form bhare.</p>';
+  }else if(b.type==='send'){
+    inner='<label>Message type</label><select data-f="mode" data-id="'+b.id+'">'
+      +'<option value="template" '+(b.mode==='template'?'selected':'')+'>Template message (compliant default)</option>'
+      +'<option value="text" '+(b.mode==='text'?'selected':'')+'>Free text (sirf 24-hour window me deliver hota hai)</option></select>';
+    if(b.mode==='template'){
+      inner+='<div class="grid md:grid-cols-2 gap-3">'
+        +'<div><label>Template name (approved)</label><input type="text" data-f="tpl" data-id="'+b.id+'" value="'+esc(b.tpl)+'" placeholder="e.g. hello_world"></div>'
+        +'<div><label>Language code</label><input type="text" data-f="lang" data-id="'+b.id+'" value="'+esc(b.lang)+'" placeholder="e.g. en_US, en, hi"></div></div>'
+        +'<label>Template body parameters — comma se alag, {{variables}} chalenge (optional)</label>'
+        +'<input type="text" data-f="params" data-id="'+b.id+'" value="'+esc(b.params)+'" placeholder="e.g. {{name}}, {{date}}, {{time}}">';
+    }else{
+      inner+='<label>Message text — {{name}}, {{business}}, {{offer}}, {{date}}, {{time}}, {{message}} use kar sakte ho</label>'
+        +'<textarea rows="3" data-f="text" data-id="'+b.id+'" placeholder="e.g. Namaste {{name}}! {{business}} se...">'+esc(b.text)+'</textarea>';
+    }
+  }else if(b.type==='delay'){
+    inner='<label>Delay (seconds) — agle block se pehle itna rukega</label>'
+      +'<input type="number" min="0" max="600" data-f="seconds" data-id="'+b.id+'" value="'+esc(b.seconds)+'">'
+      +'<p class="text-xs mt-2" style="color:#8FA6BC">Max 600 seconds (browser edition — page khula rehna chahiye).</p>';
+  }
+  const label=b.type==='trigger'?'⚡ TRIGGER':(b.type==='send'?'✉️ SEND MESSAGE':'⏱️ DELAY');
+  const cls=b.type==='trigger'?'':(b.type==='send'?' green':' blue');
+  return '<div class="block"><div class="block-head"><span class="block-type'+cls+'">'+label+'</span><span>'+controls+'</span></div>'+inner+'</div>';
+}
+function renderFlow(){
+  const wrap=$('flowWrap');wrap.innerHTML='';
+  flow.forEach((b,i)=>{
+    if(i>0){const c=document.createElement('div');c.innerHTML='<div class="connector"></div><div class="connector-arrow">▼</div>';wrap.appendChild(c);}
+    const d=document.createElement('div');d.innerHTML=blockHTML(b,i);wrap.appendChild(d.firstChild);
+  });
+  wrap.querySelectorAll('[data-f]').forEach(el=>{
+    el.addEventListener('input',()=>{const b=flow.find(x=>x.id===el.dataset.id);if(!b)return;b[el.dataset.f]=el.value;saveFlow();if(el.dataset.f==='mode')renderFlow();});
+    el.addEventListener('change',()=>{const b=flow.find(x=>x.id===el.dataset.id);if(!b)return;b[el.dataset.f]=el.value;saveFlow();if(el.dataset.f==='mode')renderFlow();});
+  });
+  wrap.querySelectorAll('[data-act]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const i=flow.findIndex(x=>x.id===btn.dataset.id);if(i<0)return;
+      if(btn.dataset.act==='del')flow.splice(i,1);
+      else if(btn.dataset.act==='up'&&i>1){const t=flow[i-1];flow[i-1]=flow[i];flow[i]=t;}
+      else if(btn.dataset.act==='down'&&i<flow.length-1){const t=flow[i+1];flow[i+1]=flow[i];flow[i]=t;}
+      saveFlow();renderFlow();
+    });
+  });
+}
+
+/* ---------- recipes ---------- */
+const RECIPES={
+  welcome:{label:'Welcome New Lead',flow:[
+    {type:'trigger',mode:'lead'},
+    {type:'send',mode:'template',tpl:'hello_world',lang:'en_US',params:'',text:''},
+    {type:'delay',seconds:5},
+    {type:'send',mode:'text',tpl:'',lang:'en',params:'',text:'Namaste {{name}}! {{business}} me aapka swagat hai. Aapka message mil gaya hai: "{{message}}". Hum jald hi reply karenge. Booking ke liye bas time bata dijiye.'}
+  ]},
+  reminder:{label:'Appointment Reminder',flow:[
+    {type:'trigger',mode:'manual'},
+    {type:'send',mode:'template',tpl:'appointment_reminder',lang:'en',params:'{{name}}, {{date}}, {{time}}',text:''},
+    {type:'delay',seconds:60},
+    {type:'send',mode:'text',tpl:'',lang:'en',params:'',text:'Namaste {{name}}, ek chhoti si reminder — aapki appointment {{business}} me {{date}} ko {{time}} par hai. Time par aayein, bina line ke seedha service payein. Kuch badalna ho to yahin reply karein.'}
+  ]},
+  offer:{label:'Offer to Opted-in Customers',flow:[
+    {type:'trigger',mode:'manual'},
+    {type:'send',mode:'template',tpl:'offer_message',lang:'en',params:'{{name}}, {{offer}}',text:''},
+    {type:'delay',seconds:2},
+    {type:'send',mode:'text',tpl:'',lang:'en',params:'',text:'{{name}} ji, ye offer sirf hamare khaas customers ke liye hai: {{offer}}. Book karne ke liye isi number par reply karein. — {{business}}'}
+  ]}
+};
+function loadRecipe(key){
+  const r=RECIPES[key];if(!r)return;
+  flow=r.flow.map(b=>Object.assign({id:nid()},b));
+  saveFlow();renderFlow();
+  log('Recipe load ho gaya: "'+r.label+'". Template names apne approved templates se check kar lo.','step');
+}
+
+/* ---------- Meta API ---------- */
+function metaErr(data,status){
+  const e=(data&&data.error)||{};
+  return 'Meta error'+(e.code?' (code '+e.code+')':'')+': '+(e.message||('HTTP '+status));
+}
+async function testConnection(){
+  const c=creds();
+  const msg=$('connMsg');msg.innerHTML='';
+  if(!c.phone||!c.token){msg.innerHTML='<div class="err">Pehle Phone Number ID aur Access Token daalo.</div>';return;}
+  $('testConnBtn').disabled=true;$('testConnBtn').textContent='Checking…';
+  try{
+    const url='https://graph.facebook.com/'+encodeURIComponent(c.ver)+'/'+encodeURIComponent(c.phone)+'?fields=display_phone_number,verified_name,quality_rating';
+    const r=await fetch(url,{headers:{'Authorization':'Bearer '+c.token}});
+    const data=await r.json().catch(()=>({}));
+    if(!r.ok)throw new Error(metaErr(data,r.status));
+    const who=(data.verified_name||'WhatsApp Business')+' · '+(data.display_phone_number||c.phone);
+    msg.innerHTML='<div class="okbox">✓ Connection ho gaya — <strong>'+esc(who)+'</strong>'+(data.quality_rating?' · Quality: '+esc(data.quality_rating):'')+'</div>';
+    log('Connection test OK: '+who,'ok');
+  }catch(e){
+    msg.innerHTML='<div class="err">'+esc(e.message)+'</div>';
+    log('Connection test FAIL: '+e.message,'err');
+  }
+  $('testConnBtn').disabled=false;$('testConnBtn').textContent='Test connection';
+}
+async function sendMessage(to,block,vars){
+  const c=creds();
+  const body={messaging_product:'whatsapp',recipient_type:'individual',to:to};
+  if(block.mode==='template'){
+    body.type='template';
+    body.template={name:(block.tpl||'').trim(),language:{code:(block.lang||'en').trim()||'en'}};
+    const params=(block.params||'').split(',').map(s=>fillVars(s.trim(),vars)).filter(s=>s.length);
+    if(params.length)body.template.components=[{type:'body',parameters:params.map(t=>({type:'text',text:t}))}];
+  }else{
+    body.type='text';
+    body.text={preview_url:false,body:fillVars(block.text||'',vars)};
+  }
+  const url='https://graph.facebook.com/'+encodeURIComponent(c.ver)+'/'+encodeURIComponent(c.phone)+'/messages';
+  const r=await fetch(url,{method:'POST',headers:{'Authorization':'Bearer '+c.token,'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const data=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(metaErr(data,r.status));
+  const id=data.messages&&data.messages[0]&&data.messages[0].id;
+  return id||'accepted';
+}
+
+/* ---------- run engine ---------- */
+function sleep(ms){return new Promise(res=>setTimeout(res,ms));}
+function parseRecipients(raw){
+  const seen={},out=[];
+  (raw||'').split(/[\n,;]+/).forEach(p=>{const d=p.replace(/\D/g,'');if(d.length>=8&&d.length<=15&&!seen[d]){seen[d]=1;out.push(d);}});
+  return out;
+}
+function setRunning(on){
+  running=on;
+  $('runBtn').disabled=on;$('leadBtn').disabled=on;$('stopBtn').disabled=!on;
+  $('runMsg').textContent=on?'Flow chal raha hai… page khula rakho.':'';
+}
+async function runFlow(recipients,vars,sourceLabel){
+  const c=creds();
+  if(!c.phone||!c.token){log('Run ruk gaya: pehle CONNECT panel me Phone Number ID aur Access Token daalo.','err');return;}
+  if(!recipients.length){log('Run ruk gaya: koi valid recipient number nahi mila.','err');return;}
+  if(recipients.length>20){log('Recipients '+recipients.length+' the — safety cap ki wajah se sirf pehle 20 ko bheja jayega.','err');recipients=recipients.slice(0,20);}
+  if(!flow.some(b=>b.type==='send')){log('Run ruk gaya: flow me ek bhi Send Message block nahi hai.','err');return;}
+  setRunning(true);abortRun=false;
+  log('▶ RUN shuru ('+sourceLabel+') — '+recipients.length+' recipient(s), '+flow.length+' blocks.','step');
+  let sent=0,failed=0;
+  for(let ri=0;ri<recipients.length;ri++){
+    if(abortRun){log('⏹ Run roka gaya.','err');break;}
+    const to=recipients[ri];
+    log('— Recipient '+(ri+1)+'/'+recipients.length+': +'+to+' —','step');
+    for(let bi=0;bi<flow.length;bi++){
+      if(abortRun)break;
+      const b=flow[bi];
+      if(b.type==='trigger'){log('Step '+(bi+1)+': Trigger ('+(b.mode==='lead'?'Lead Form':'Manual')+')','info');continue;}
+      if(b.type==='delay'){
+        const sec=Math.max(0,Math.min(600,parseInt(b.seconds,10)||0));
+        log('Step '+(bi+1)+': Delay '+sec+'s…','info');
+        if(sec>0)await sleep(sec*1000);
+        continue;
+      }
+      if(b.type==='send'){
+        const what=b.mode==='template'?('template "'+(b.tpl||'')+'"'):'text message';
+        try{
+          const id=await sendMessage(to,b,vars);
+          sent++;
+          log('Step '+(bi+1)+': ✓ '+what+' bheja gaya +'+to+' (message id: '+id+')','ok');
+        }catch(e){
+          failed++;
+          log('Step '+(bi+1)+': ✗ '+what+' FAIL +'+to+' — '+e.message,'err');
+        }
+      }
+    }
+    if(ri<recipients.length-1&&!abortRun)await sleep(1000);
+  }
+  log('■ RUN khatm — sent: '+sent+', failed: '+failed+'.','step');
+  setRunning(false);
+}
+
+/* ---------- wire up ---------- */
+$('saveConnBtn').addEventListener('click',saveConn);
+$('testConnBtn').addEventListener('click',testConnection);
+$('addSendBtn').addEventListener('click',()=>{flow.push({id:nid(),type:'send',mode:'template',tpl:'hello_world',lang:'en_US',params:'',text:''});saveFlow();renderFlow();});
+$('addDelayBtn').addEventListener('click',()=>{flow.push({id:nid(),type:'delay',seconds:5});saveFlow();renderFlow();});
+document.querySelectorAll('.recipeBtn').forEach(b=>b.addEventListener('click',()=>loadRecipe(b.dataset.recipe)));
+$('runBtn').addEventListener('click',()=>{saveVars();runFlow(parseRecipients($('recipients').value),getVars(),'Manual run');});
+$('stopBtn').addEventListener('click',()=>{abortRun=true;log('Stop dabaa diya — current step ke baad rukega.','err');});
+$('leadBtn').addEventListener('click',()=>{
+  const name=$('leadName').value.trim(),phone=$('leadPhone').value.replace(/\D/g,''),message=$('leadMsg').value.trim();
+  const err=$('leadErr');err.innerHTML='';
+  if(!name||!phone){err.innerHTML='<div class="err">Lead form me customer ka name aur WhatsApp number zaroori hai.</div>';return;}
+  if(phone.length<8){err.innerHTML='<div class="err">Number sahi nahi lag raha — country code ke saath pura number daalo.</div>';return;}
+  log('📩 Naya lead aaya: '+name+' (+'+phone+') — "'+message+'"','step');
+  runFlow([phone],getVars({name:name,message:message,phone:phone}),'Lead Form trigger');
+});
+$('clearLogBtn').addEventListener('click',()=>{$('log').innerHTML='';});
+['v_name','v_business','v_offer','v_date','v_time','recipients'].forEach(id=>$(id).addEventListener('input',saveVars));
+['phoneId','token','apiVer'].forEach(id=>$(id).addEventListener('input',updateConnStatus));
+loadConn();loadVars();renderFlow();
+log('FlowStudio ready hai. Pehle CONNECT panel me apni Meta details daal ke "Test connection" dabao.','info');
+</script>
+</body>
+</html>
