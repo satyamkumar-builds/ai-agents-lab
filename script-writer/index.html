@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ScriptWriter AI — SatyamLabs AI Agents Lab</title>
+<meta name="description" content="ScriptWriter AI writes short-form video scripts — hook, body, CTA — in Hindi, Hinglish or English. Runs on your own API key.">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body{background:#0B1F3A;color:#EAF1F8;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+  .card{background:#10294D;border:1px solid #1E3A5F;border-radius:16px}
+  .accent{color:#FFB020}
+  input,select,textarea{background:#0B1F3A;border:1px solid #1E3A5F;border-radius:10px;padding:10px 12px;width:100%;color:#EAF1F8;font-size:14px}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:#FFB020}
+  label{font-size:12px;letter-spacing:.05em;color:#8FA6BC;display:block;margin:10px 0 4px}
+  .btn{background:#FFB020;color:#0B1F3A;font-weight:700;border-radius:10px;padding:10px 18px}
+  .btn:disabled{opacity:.5}
+  .btn-ghost{background:transparent;border:1px solid #1E3A5F;color:#BECDDE;border-radius:10px;padding:9px 14px;font-size:13px}
+  .bubble{border-radius:14px;padding:10px 14px;max-width:92%;white-space:pre-wrap;word-wrap:break-word;font-size:14.5px;line-height:1.6}
+  .bubble-user{background:#FFB020;color:#0B1F3A;margin-left:auto}
+  .bubble-ai{background:#10294D;border:1px solid #1E3A5F;margin-right:auto}
+  .chip{border:1px solid #1E3A5F;border-radius:999px;padding:5px 12px;font-size:12.5px;color:#BECDDE;cursor:pointer}
+  .chip:hover{border-color:#FFB020;color:#FFB020}
+  .err{background:#3A1420;border:1px solid #7F1D2D;color:#FCA5A5;border-radius:10px;padding:10px 12px;font-size:13.5px}
+</style>
+</head>
+<body class="min-h-screen">
+<div class="max-w-3xl mx-auto px-4 py-6">
+  <a href="../" class="text-sm accent">← All tools</a>
+  <h1 class="text-3xl font-extrabold mt-2">ScriptWriter <span class="accent">AI</span></h1>
+  <p class="text-sm mt-1" style="color:#BECDDE">Topic do, 30–45 second ki reel/short script lo — Hook (0–3s), Body, CTA aur on-screen text ke saath. Hindi, Hinglish ya English.</p>
+
+  <div class="card p-4 mt-5">
+    <div class="flex items-center justify-between">
+      <h2 class="font-bold text-sm tracking-wide">API KEY (BYOK)</h2>
+      <span id="keyStatus" class="text-xs"></span>
+    </div>
+    <div class="grid md:grid-cols-3 gap-3">
+      <div><label>Provider</label>
+        <select id="provSel">
+          <option value="gemini">Google Gemini (free key)</option>
+          <option value="openrouter">OpenRouter</option>
+          <option value="groq">Groq</option>
+        </select></div>
+      <div><label>Your API key</label><input type="password" id="keyInput" placeholder="Paste your key" autocomplete="off"></div>
+      <div><label>Model</label><input type="text" id="modelInput"></div>
+    </div>
+    <div class="flex items-center gap-3 mt-3">
+      <button class="btn-ghost" id="saveKeyBtn" type="button">Save key in this browser</button>
+      <p class="text-xs" style="color:#8FA6BC">Key sirf tumhare browser me rehti hai. Free Gemini key: <span class="accent">aistudio.google.com/apikey</span></p>
+    </div>
+  </div>
+
+  <div class="grid md:grid-cols-2 gap-3 mt-4">
+    <div><label>Language</label>
+      <select id="langSel">
+        <option value="Hindi (Devanagari nahi, Roman Hindi chalegi jab tak user na kahe)">Hindi / Hinglish</option>
+        <option value="English">English</option>
+        <option value="Pure Hindi">Pure Hindi</option>
+      </select></div>
+    <div><label>Duration</label>
+      <select id="durSel">
+        <option value="30 to 45 seconds">30–45 seconds</option>
+        <option value="under 30 seconds">Under 30 seconds</option>
+        <option value="60 seconds">About 60 seconds</option>
+      </select></div>
+  </div>
+
+  <div class="flex flex-wrap gap-2 mt-4">
+    <button class="chip" data-topic="Ek script likho: students ke liye ek free AI tool jo PDF se notes banata hai">AI tool for students</button>
+    <button class="chip" data-topic="Ek script likho: salon me line me khade hone ki dikkat aur uska smart solution">Salon queue problem</button>
+    <button class="chip" data-topic="Ek script likho: subah 5 baje uthne ki aadat kaise banayi, mera personal experience style">5 AM habit</button>
+  </div>
+
+  <div id="chatBox" class="flex flex-col gap-3 mt-5"></div>
+  <div id="errBox" class="mt-3"></div>
+
+  <form id="chatForm" class="flex gap-2 mt-4 items-end">
+    <textarea id="chatInput" rows="2" placeholder="Apna topic likho… jaise: ek app jo salon ki line khatam karta hai"></textarea>
+    <button class="btn" id="sendBtn" type="submit">Write</button>
+  </form>
+  <div class="flex justify-between items-center mt-3">
+    <p class="text-xs" style="color:#8FA6BC">Script ke baad "hook aur strong karo" ya "chhota karo" bol ke improve bhi kar sakte ho.</p>
+    <button class="btn-ghost" id="clearBtn" type="button">Clear chat</button>
+  </div>
+
+  <footer class="text-center text-xs mt-10 pb-6" style="color:#8FA6BC">SatyamLabs AI Agents Lab · Built by Satyam Kumar · Your key stays in your browser</footer>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const PROVIDERS={gemini:{model:'gemini-2.0-flash'},openrouter:{model:'google/gemini-2.0-flash-exp:free'},groq:{model:'llama-3.3-70b-versatile'}};
+function loadKey(){const p=$('provSel').value;$('keyInput').value=localStorage.getItem('byok_key_'+p)||'';$('modelInput').value=localStorage.getItem('byok_model_'+p)||PROVIDERS[p].model;updateKeyStatus();}
+function saveKey(){const p=$('provSel').value;localStorage.setItem('byok_key_'+p,$('keyInput').value.trim());localStorage.setItem('byok_model_'+p,$('modelInput').value.trim()||PROVIDERS[p].model);updateKeyStatus();}
+function updateKeyStatus(){const has=!!$('keyInput').value.trim();$('keyStatus').textContent=has?'Key saved in this browser':'No key set';$('keyStatus').style.color=has?'#4ADE80':'#FFB020';}
+function settings(){return{provider:$('provSel').value,key:$('keyInput').value.trim(),model:$('modelInput').value.trim()};}
+function friendlyErr(status,data){const raw=(data&&data.error&&(data.error.message||data.error.code))||'';if(status===400)return 'Request reject hua (400). Model ka naam check karo. '+raw;if(status===401||status===403)return 'Key accept nahi hui ('+status+'). Sahi key daalo ya provider check karo. '+raw;if(status===429)return 'Limit khatam (429). Thoda ruk ke try karo, ya dusra provider chuno. '+raw;return 'Provider error ('+status+'). '+raw;}
+async function aiChat(system,messages){
+  const s=settings();
+  if(!s.key)throw new Error('Pehle upar apni API key daalo aur Save karo. Free Gemini key aistudio.google.com/apikey se milti hai.');
+  if(!s.model)throw new Error('Model ka naam khaali hai — default model wapas likho.');
+  if(s.provider==='gemini'){
+    const contents=messages.map(m=>({role:m.role==='assistant'?'model':'user',parts:[{text:m.content}]}));
+    const body={contents:contents,generationConfig:{temperature:0.8,maxOutputTokens:1200}};
+    if(system)body.system_instruction={parts:[{text:system}]};
+    const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(s.model)+':generateContent',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':s.key},body:JSON.stringify(body)});
+    const data=await r.json().catch(()=>({}));
+    if(!r.ok)throw new Error(friendlyErr(r.status,data));
+    const txt=(data.candidates&&data.candidates[0]&&data.candidates[0].content&&data.candidates[0].content.parts||[]).map(p=>p.text||'').join('');
+    if(!txt)throw new Error('AI se khaali jawab aaya. Dobara try karo.');
+    return txt;
+  }
+  const url=s.provider==='openrouter'?'https://openrouter.ai/api/v1/chat/completions':'https://api.groq.com/openai/v1/chat/completions';
+  const msgs=(system?[{role:'system',content:system}]:[]).concat(messages);
+  const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+s.key},body:JSON.stringify({model:s.model,messages:msgs,temperature:0.8,max_tokens:1200})});
+  const data=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(friendlyErr(r.status,data));
+  const txt=data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content||'';
+  if(!txt)throw new Error('AI se khaali jawab aaya. Dobara try karo.');
+  return txt;
+}
+function systemPrompt(){
+  return 'You are ScriptWriter, an expert short-form video script writer for Indian creators. For every topic, write a complete shoot-ready script in this exact structure:\nTITLE: one line\nHOOK (0-3s): one spoken line that stops the scroll — a question, a bold claim or a relatable pain. No fake claims.\nBODY: spoken lines, one idea per line, simple words, total length matching the requested duration (about 2.2 words per second of speaking).\nON-SCREEN TEXT: 3 to 5 short English text overlays for key moments.\nCTA: one spoken line at the end (follow / comment / link) that fits the topic.\nLanguage: '+$('langSel').value+'. Duration: '+$('durSel').value+'.\nRules: spoken lines use commas and full stops only, natural spoken style. No clickbait lies, no invented facts about products. If the user asks to change the script (stronger hook, shorter, funnier), edit the same script instead of writing a new topic.';
+}
+let history=[];
+function addMsg(role,text){
+  const d=document.createElement('div');
+  d.className='bubble '+(role==='user'?'bubble-user':'bubble-ai');
+  d.textContent=text;
+  $('chatBox').appendChild(d);
+  d.scrollIntoView({behavior:'smooth',block:'end'});
+}
+function showErr(msg){$('errBox').innerHTML='';const d=document.createElement('div');d.className='err';d.textContent=msg;$('errBox').appendChild(d);}
+function clearErr(){$('errBox').innerHTML='';}
+async function send(text){
+  clearErr();
+  addMsg('user',text);
+  history.push({role:'user',content:text});
+  $('sendBtn').disabled=true;$('sendBtn').textContent='Likh raha hai…';
+  try{
+    const reply=await aiChat(systemPrompt(),history);
+    history.push({role:'assistant',content:reply});
+    addMsg('assistant',reply);
+  }catch(e){
+    history.pop();
+    showErr(e.message||'Kuch galat ho gaya. Dobara try karo.');
+  }
+  $('sendBtn').disabled=false;$('sendBtn').textContent='Write';
+}
+$('chatForm').addEventListener('submit',e=>{e.preventDefault();const t=$('chatInput').value.trim();if(!t)return;$('chatInput').value='';send(t);});
+document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>send(c.getAttribute('data-topic'))));
+$('clearBtn').addEventListener('click',()=>{history=[];$('chatBox').innerHTML='';clearErr();greet();});
+$('provSel').addEventListener('change',loadKey);
+$('saveKeyBtn').addEventListener('click',saveKey);
+function greet(){addMsg('assistant','Namaste! Main ScriptWriter hu. Bas topic batao — main hook, body, CTA aur on-screen text ke saath puri script bana dunga. Upar se language aur duration bhi chun sakte ho.');}
+loadKey();greet();
+</script>
+</body>
+</html>

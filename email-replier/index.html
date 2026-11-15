@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email Replier — SatyamLabs AI Agents Lab</title>
+<meta name="description" content="Paste an incoming email, pick a tone, and get a professional reply draft. Runs on your own API key — the email never touches any server of ours.">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body{background:#0B1F3A;color:#EAF1F8;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+  .card{background:#10294D;border:1px solid #1E3A5F;border-radius:16px}
+  .accent{color:#FFB020}
+  input,select,textarea{background:#0B1F3A;border:1px solid #1E3A5F;border-radius:10px;padding:10px 12px;width:100%;color:#EAF1F8;font-size:14px}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:#FFB020}
+  label{font-size:12px;letter-spacing:.05em;color:#8FA6BC;display:block;margin:10px 0 4px}
+  .btn{background:#FFB020;color:#0B1F3A;font-weight:700;border-radius:10px;padding:10px 18px}
+  .btn:disabled{opacity:.5}
+  .btn-ghost{background:transparent;border:1px solid #1E3A5F;color:#BECDDE;border-radius:10px;padding:9px 14px;font-size:13px}
+  .outbox{background:#0B1F3A;border:1px solid #1E3A5F;border-radius:12px;padding:14px;white-space:pre-wrap;font-size:14.5px;line-height:1.6;min-height:120px}
+  .err{background:#3A1420;border:1px solid #7F1D2D;color:#FCA5A5;border-radius:10px;padding:10px 12px;font-size:13.5px}
+</style>
+</head>
+<body class="min-h-screen">
+<div class="max-w-3xl mx-auto px-4 py-6">
+  <a href="../" class="text-sm accent">← All tools</a>
+  <h1 class="text-3xl font-extrabold mt-2">Email <span class="accent">Replier</span></h1>
+  <p class="text-sm mt-1" style="color:#BECDDE">Aaya hua email paste karo, tone chuno — professional reply draft ready. Bhejne se pehle hamesha khud padho; ye tool sirf draft banata hai, khud email nahi bhejta.</p>
+
+  <div class="card p-4 mt-5">
+    <div class="flex items-center justify-between">
+      <h2 class="font-bold text-sm tracking-wide">API KEY (BYOK)</h2>
+      <span id="keyStatus" class="text-xs"></span>
+    </div>
+    <div class="grid md:grid-cols-3 gap-3">
+      <div><label>Provider</label>
+        <select id="provSel">
+          <option value="gemini">Google Gemini (free key)</option>
+          <option value="openrouter">OpenRouter</option>
+          <option value="groq">Groq</option>
+        </select></div>
+      <div><label>Your API key</label><input type="password" id="keyInput" placeholder="Paste your key" autocomplete="off"></div>
+      <div><label>Model</label><input type="text" id="modelInput"></div>
+    </div>
+    <div class="flex items-center gap-3 mt-3">
+      <button class="btn-ghost" id="saveKeyBtn" type="button">Save key in this browser</button>
+      <p class="text-xs" style="color:#8FA6BC">Key sirf tumhare browser me rehti hai. Email seedha tumhare browser se provider ko jata hai. Free Gemini key: <span class="accent">aistudio.google.com/apikey</span></p>
+    </div>
+  </div>
+
+  <div class="card p-4 mt-4">
+    <h2 class="font-bold text-sm tracking-wide">EMAIL DETAILS</h2>
+    <label>Aaya hua email (paste karo)</label>
+    <textarea id="incoming" rows="7" placeholder="Poora email yahan paste karo — subject ke saath ho to aur accha"></textarea>
+    <div class="grid md:grid-cols-3 gap-3">
+      <div><label>Tone</label>
+        <select id="tone">
+          <option value="professional and polite">Professional</option>
+          <option value="friendly and warm">Friendly</option>
+          <option value="firm but respectful — clear boundaries, no rudeness">Firm (polite)</option>
+          <option value="apologetic and caring — accept the issue, offer a fix">Apologetic</option>
+          <option value="short and to the point — maximum 5 lines">Short &amp; crisp</option>
+        </select></div>
+      <div><label>Tumhara naam</label><input type="text" id="myName" placeholder="e.g. Satyam Kumar"></div>
+      <div><label>Business / role (optional)</label><input type="text" id="myRole" placeholder="e.g. Founder, Line Free India"></div>
+    </div>
+    <label>Koi khaas baat jo reply me zaroor ho (optional)</label>
+    <input type="text" id="mustSay" placeholder="e.g. Friday tak delivery pakki hai / Meeting ke liye sirf chat par baat hogi">
+    <button class="btn w-full mt-4" id="genBtn" type="button">Reply draft banao</button>
+    <div id="errBox" class="mt-3"></div>
+  </div>
+
+  <div id="resultWrap" class="mt-5 hidden">
+    <div class="flex items-center justify-between">
+      <h2 class="font-bold">Reply draft</h2>
+      <button class="btn-ghost" id="copyBtn" type="button">Copy reply</button>
+    </div>
+    <div class="outbox mt-3" id="outBox"></div>
+    <p class="text-xs mt-2" style="color:#8FA6BC">Draft hai — naam, date aur waade bhejne se pehle khud check karo. Jo baat pakki nahi, use reply me pakka mat likho.</p>
+  </div>
+
+  <footer class="text-center text-xs mt-10 pb-6" style="color:#8FA6BC">SatyamLabs AI Agents Lab · Built by Satyam Kumar · Your key stays in your browser</footer>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const PROVIDERS={gemini:{model:'gemini-2.0-flash'},openrouter:{model:'google/gemini-2.0-flash-exp:free'},groq:{model:'llama-3.3-70b-versatile'}};
+function loadKey(){const p=$('provSel').value;$('keyInput').value=localStorage.getItem('byok_key_'+p)||'';$('modelInput').value=localStorage.getItem('byok_model_'+p)||PROVIDERS[p].model;updateKeyStatus();}
+function saveKey(){const p=$('provSel').value;localStorage.setItem('byok_key_'+p,$('keyInput').value.trim());localStorage.setItem('byok_model_'+p,$('modelInput').value.trim()||PROVIDERS[p].model);updateKeyStatus();}
+function updateKeyStatus(){const has=!!$('keyInput').value.trim();$('keyStatus').textContent=has?'Key saved in this browser':'No key set';$('keyStatus').style.color=has?'#4ADE80':'#FFB020';}
+function settings(){return{provider:$('provSel').value,key:$('keyInput').value.trim(),model:$('modelInput').value.trim()};}
+function friendlyErr(status,data){const raw=(data&&data.error&&(data.error.message||data.error.code))||'';if(status===400)return 'Request reject hua (400). Model ka naam check karo. '+raw;if(status===401||status===403)return 'Key accept nahi hui ('+status+'). Sahi key daalo ya provider check karo. '+raw;if(status===429)return 'Limit khatam (429). Thoda ruk ke try karo, ya dusra provider chuno. '+raw;return 'Provider error ('+status+'). '+raw;}
+async function aiChat(system,messages){
+  const s=settings();
+  if(!s.key)throw new Error('Pehle upar apni API key daalo aur Save karo. Free Gemini key aistudio.google.com/apikey se milti hai.');
+  if(!s.model)throw new Error('Model ka naam khaali hai — default model wapas likho.');
+  if(s.provider==='gemini'){
+    const contents=messages.map(m=>({role:m.role==='assistant'?'model':'user',parts:[{text:m.content}]}));
+    const body={contents:contents,generationConfig:{temperature:0.6,maxOutputTokens:1000}};
+    if(system)body.system_instruction={parts:[{text:system}]};
+    const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(s.model)+':generateContent',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':s.key},body:JSON.stringify(body)});
+    const data=await r.json().catch(()=>({}));
+    if(!r.ok)throw new Error(friendlyErr(r.status,data));
+    const txt=(data.candidates&&data.candidates[0]&&data.candidates[0].content&&data.candidates[0].content.parts||[]).map(p=>p.text||'').join('');
+    if(!txt)throw new Error('AI se khaali jawab aaya. Dobara try karo.');
+    return txt;
+  }
+  const url=s.provider==='openrouter'?'https://openrouter.ai/api/v1/chat/completions':'https://api.groq.com/openai/v1/chat/completions';
+  const msgs=(system?[{role:'system',content:system}]:[]).concat(messages);
+  const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+s.key},body:JSON.stringify({model:s.model,messages:msgs,temperature:0.6,max_tokens:1000})});
+  const data=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(friendlyErr(r.status,data));
+  const txt=data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content||'';
+  if(!txt)throw new Error('AI se khaali jawab aaya. Dobara try karo.');
+  return txt;
+}
+function showErr(msg){$('errBox').innerHTML='';if(!msg)return;const d=document.createElement('div');d.className='err';d.textContent=msg;$('errBox').appendChild(d);}
+$('genBtn').addEventListener('click',async()=>{
+  const incoming=$('incoming').value.trim();
+  if(!incoming){showErr('Pehle aaya hua email paste karo.');return;}
+  if(incoming.length<20){showErr('Email bahut chhota lag raha hai — poora email paste karo taaki jawab sahi bane.');return;}
+  showErr('');
+  $('genBtn').disabled=true;$('genBtn').textContent='Draft ban raha hai…';
+  const name=$('myName').value.trim()||'[Your name]';
+  const role=$('myRole').value.trim();
+  const must=$('mustSay').value.trim();
+  const sys='You write professional email replies. Tone: '+$('tone').value+'. Rules: answer every question or point in the incoming email; do not invent facts, dates, prices or promises that are not in the email or the user notes; keep it human and clear; structure — greeting, body, clear next step, sign-off. Sign off as '+name+(role?(', '+role):'')+'. Write the reply in the same language as the incoming email (English email = English reply, Hindi/Hinglish = same mix). Return only the reply text, ready to copy.';
+  const userMsg='Incoming email:\n"""\n'+incoming+'\n"""'+(must?('\n\nThis must be included in the reply: '+must):'');
+  try{
+    const out=await aiChat(sys,[{role:'user',content:userMsg}]);
+    $('outBox').textContent=out.trim();
+    $('resultWrap').classList.remove('hidden');
+    $('resultWrap').scrollIntoView({behavior:'smooth',block:'start'});
+  }catch(e){showErr(e.message);}
+  $('genBtn').disabled=false;$('genBtn').textContent='Reply draft banao';
+});
+$('copyBtn').addEventListener('click',()=>{navigator.clipboard.writeText($('outBox').textContent).then(()=>{$('copyBtn').textContent='Copied ✓';setTimeout(()=>$('copyBtn').textContent='Copy reply',1500);});});
+$('provSel').addEventListener('change',loadKey);
+$('saveKeyBtn').addEventListener('click',saveKey);
+loadKey();
+</script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile Optimizer — SatyamLabs AI Agents Lab</title>
+<meta name="description" content="Paste your LinkedIn or Fiverr bio and get improved versions plus headline options. Honest improvements only — no fake experience added. Runs on your own API key.">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body{background:#0B1F3A;color:#EAF1F8;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+  .card{background:#10294D;border:1px solid #1E3A5F;border-radius:16px}
+  .accent{color:#FFB020}
+  input,select,textarea{background:#0B1F3A;border:1px solid #1E3A5F;border-radius:10px;padding:10px 12px;width:100%;color:#EAF1F8;font-size:14px}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:#FFB020}
+  label{font-size:12px;letter-spacing:.05em;color:#8FA6BC;display:block;margin:10px 0 4px}
+  .btn{background:#FFB020;color:#0B1F3A;font-weight:700;border-radius:10px;padding:10px 18px}
+  .btn:disabled{opacity:.5}
+  .btn-ghost{background:transparent;border:1px solid #1E3A5F;color:#BECDDE;border-radius:10px;padding:9px 14px;font-size:13px}
+  .outbox{background:#0B1F3A;border:1px solid #1E3A5F;border-radius:12px;padding:14px;white-space:pre-wrap;font-size:14.5px;line-height:1.6;min-height:120px}
+  .err{background:#3A1420;border:1px solid #7F1D2D;color:#FCA5A5;border-radius:10px;padding:10px 12px;font-size:13.5px}
+</style>
+</head>
+<body class="min-h-screen">
+<div class="max-w-3xl mx-auto px-4 py-6">
+  <a href="../" class="text-sm accent">← All tools</a>
+  <h1 class="text-3xl font-extrabold mt-2">Profile <span class="accent">Optimizer</span></h1>
+  <p class="text-sm mt-1" style="color:#BECDDE">Apni LinkedIn ya Fiverr bio paste karo — improved versions aur headline options ready. Ek pakki baat: ye tool <strong class="text-white">jhoothi experience nahi jodta</strong> — jo sach hai, usi ko strong banata hai.</p>
+
+  <div class="card p-4 mt-5">
+    <div class="flex items-center justify-between">
+      <h2 class="font-bold text-sm tracking-wide">API KEY (BYOK)</h2>
+      <span id="keyStatus" class="text-xs"></span>
+    </div>
+    <div class="grid md:grid-cols-3 gap-3">
+      <div><label>Provider</label>
+        <select id="provSel">
+          <option value="gemini">Google Gemini (free key)</option>
+          <option value="openrouter">OpenRouter</option>
+          <option value="groq">Groq</option>
+        </select></div>
+      <div><label>Your API key</label><input type="password" id="keyInput" placeholder="Paste your key" autocomplete="off"></div>
+      <div><label>Model</label><input type="text" id="modelInput"></div>
+    </div>
+    <div class="flex items-center gap-3 mt-3">
+      <button class="btn-ghost" id="saveKeyBtn" type="button">Save key in this browser</button>
+      <p class="text-xs" style="color:#8FA6BC">Key sirf tumhare browser me rehti hai. Free Gemini key: <span class="accent">aistudio.google.com/apikey</span></p>
+    </div>
+  </div>
+
+  <div class="card p-4 mt-4">
+    <h2 class="font-bold text-sm tracking-wide">PROFILE DETAILS</h2>
+    <label>Tumhari current bio / about (paste karo)</label>
+    <textarea id="bio" rows="6" placeholder="Apni LinkedIn About ya Fiverr bio yahan paste karo"></textarea>
+    <div class="grid md:grid-cols-2 gap-3">
+      <div><label>Platform</label>
+        <select id="platform">
+          <option value="LinkedIn">LinkedIn</option>
+          <option value="Fiverr">Fiverr</option>
+          <option value="General (portfolio / anywhere)">General</option>
+        </select></div>
+      <div><label>Goal — profile dekh ke log kya karein?</label>
+        <input type="text" id="goal" placeholder="e.g. Freelance clients milein / Internship mile / Network bade">
+      </div>
+    </div>
+    <label>Skills jo sach me aati hain (comma se alag)</label>
+    <input type="text" id="skills" placeholder="e.g. React, JavaScript, video editing, Firebase">
+    <button class="btn w-full mt-4" id="genBtn" type="button">Profile improve karo</button>
+    <div id="errBox" class="mt-3"></div>
+  </div>
+
+  <div id="resultWrap" class="mt-5 hidden">
+    <div class="flex items-center justify-between">
+      <h2 class="font-bold">Improved profile</h2>
+      <button class="btn-ghost" id="copyBtn" type="button">Copy all</button>
+    </div>
+    <div class="outbox mt-3" id="outBox"></div>
+    <p class="text-xs mt-2" style="color:#8FA6BC">Use karne se pehle har line padho — koi baat sach se badi lage to use hata do. Profile tumhari hai, zimmedari bhi.</p>
+  </div>
+
+  <footer class="text-center text-xs mt-10 pb-6" style="color:#8FA6BC">SatyamLabs AI Agents Lab · Built by Satyam Kumar · Your key stays in your browser</footer>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const PROVIDERS={gemini:{model:'gemini-2.0-flash'},openrouter:{model:'google/gemini-2.0-flash-exp:free'},groq:{model:'llama-3.3-70b-versatile'}};
+function loadKey(){const p=$('provSel').value;$('keyInput').value=localStorage.getItem('byok_key_'+p)||'';$('modelInput').value=localStorage.getItem('byok_model_'+p)||PROVIDERS[p].model;updateKeyStatus();}
+function saveKey(){const p=$('provSel').value;localStorage.setItem('byok_key_'+p,$('keyInput').value.trim());localStorage.setItem('byok_model_'+p,$('modelInput').value.trim()||PROVIDERS[p].model);updateKeyStatus();}
+function updateKeyStatus(){const has=!!$('keyInput').value.trim();$('keyStatus').textContent=has?'Key saved in this browser':'No key set';$('keyStatus').style.color=has?'#4ADE80':'#FFB020';}
+function settings(){return{provider:$('provSel').value,key:$('keyInput').value.trim(),model:$('modelInput').value.trim()};}
+function friendlyErr(status,data){const raw=(data&&data.error&&(data.error.message||data.error.code))||'';if(status===400)return 'Request reject hua (400). Model ka naam check karo. '+raw;if(status===401||status===403)return 'Key accept nahi hui ('+status+'). Sahi key daalo ya provider check karo. '+raw;if(status===429)return 'Limit khatam (429). Thoda ruk ke try karo, ya dusra provider chuno. '+raw;return 'Provider error ('+status+'). '+raw;}
+async function aiChat(system,messages){
+  const s=settings();
+  if(!s.key)throw new Error('Pehle upar apni API key daalo aur Save karo. Free Gemini key aistudio.google.com/apikey se milti hai.');
+  if(!s.model)throw new Error('Model ka naam khaali hai — default model wapas likho.');
+  if(s.provider==='gemini'){
+    const contents=messages.map(m=>({role:m.role==='assistant'?'model':'user',parts:[{text:m.content}]}));
+    const body={contents:contents,generationConfig:{temperature:0.7,maxOutputTokens:1400}};
+    if(system)body.system_instruction={parts:[{text:system}]};
+    const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(s.model)+':generateContent',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':s.key},body:JSON.stringify(body)});
+    const data=await r.json().catch(()=>({}));
+    if(!r.ok)throw new Error(friendlyErr(r.status,data));
+    const txt=(data.candidates&&data.candidates[0]&&data.candidates[0].content&&data.candidates[0].content.parts||[]).map(p=>p.text||'').join('');
+    if(!txt)throw new Error('AI se khaali jawab aaya. Dobara try karo.');
+    return txt;
+  }
+  const url=s.provider==='openrouter'?'https://openrouter.ai/api/v1/chat/completions':'https://api.groq.com/openai/v1/chat/completions';
+  const msgs=(system?[{role:'system',content:system}]:[]).concat(messages);
+  const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+s.key},body:JSON.stringify({model:s.model,messages:msgs,temperature:0.7,max_tokens:1400})});
+  const data=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(friendlyErr(r.status,data));
+  const txt=data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content||'';
+  if(!txt)throw new Error('AI se khaali jawab aaya. Dobara try karo.');
+  return txt;
+}
+function showErr(msg){$('errBox').innerHTML='';if(!msg)return;const d=document.createElement('div');d.className='err';d.textContent=msg;$('errBox').appendChild(d);}
+$('genBtn').addEventListener('click',async()=>{
+  const bio=$('bio').value.trim();
+  if(!bio){showErr('Pehle apni current bio paste karo.');return;}
+  if(bio.length<40){showErr('Bio bahut chhoti hai — thodi aur detail paste karo taaki improve sahi ho.');return;}
+  showErr('');
+  $('genBtn').disabled=true;$('genBtn').textContent='Improve ho raha hai…';
+  const platform=$('platform').value;
+  const goal=$('goal').value.trim()||'the right people connect';
+  const skills=$('skills').value.trim();
+  const sys='You are an honest profile editor for '+platform+'. STRICT RULE: never invent experience, clients, employers, numbers, ratings or results that are not in the user bio. Only rewrite, sharpen and structure what is true. Output in this exact structure:\nHEADLINE OPTIONS (3): short, specific, keyword-rich.\nBIO VERSION 1 (Clean & Professional): full rewrite.\nBIO VERSION 2 (Founder / Personal voice): same facts, more human.\nWHAT I CHANGED: 3 to 5 bullet lines explaining the edits.\nKeep the person\'s real level visible — a student should sound like a strong student, not a fake CEO. Language: same as the bio (English stays English). Goal of the profile: '+goal+'.'+(skills?(' Confirmed skills to weave in naturally: '+skills+'.'):'');
+  try{
+    const out=await aiChat(sys,[{role:'user',content:'My current bio:\n"""\n'+bio+'\n"""'}]);
+    $('outBox').textContent=out.trim();
+    $('resultWrap').classList.remove('hidden');
+    $('resultWrap').scrollIntoView({behavior:'smooth',block:'start'});
+  }catch(e){showErr(e.message);}
+  $('genBtn').disabled=false;$('genBtn').textContent='Profile improve karo';
+});
+$('copyBtn').addEventListener('click',()=>{navigator.clipboard.writeText($('outBox').textContent).then(()=>{$('copyBtn').textContent='Copied ✓';setTimeout(()=>$('copyBtn').textContent='Copy all',1500);});});
+$('provSel').addEventListener('change',loadKey);
+$('saveKeyBtn').addEventListener('click',saveKey);
+loadKey();
+</script>
+</body>
+</html>

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WhatsApp Message Studio — SatyamLabs AI Agents Lab</title>
+<meta name="description" content="Create ready-to-send business WhatsApp messages — offers, booking reminders, festival greetings, follow-ups — with 3 variants and a wa.me link.">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body{background:#0B1F3A;color:#EAF1F8;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+  .card{background:#10294D;border:1px solid #1E3A5F;border-radius:16px}
+  .accent{color:#FFB020}
+  input,select,textarea{background:#0B1F3A;border:1px solid #1E3A5F;border-radius:10px;padding:10px 12px;width:100%;color:#EAF1F8;font-size:14px}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:#FFB020}
+  label{font-size:12px;letter-spacing:.05em;color:#8FA6BC;display:block;margin:10px 0 4px}
+  .btn{background:#FFB020;color:#0B1F3A;font-weight:700;border-radius:10px;padding:10px 18px}
+  .btn:disabled{opacity:.5}
+  .btn-ghost{background:transparent;border:1px solid #1E3A5F;color:#BECDDE;border-radius:10px;padding:9px 14px;font-size:13px}
+  .variant{background:#0B1F3A;border:1px solid #1E3A5F;border-radius:12px;padding:12px 14px;white-space:pre-wrap;font-size:14.5px;line-height:1.55}
+  .err{background:#3A1420;border:1px solid #7F1D2D;color:#FCA5A5;border-radius:10px;padding:10px 12px;font-size:13.5px}
+  .ok{color:#4ADE80;font-size:12.5px}
+</style>
+</head>
+<body class="min-h-screen">
+<div class="max-w-3xl mx-auto px-4 py-6">
+  <a href="../" class="text-sm accent">← All tools</a>
+  <h1 class="text-3xl font-extrabold mt-2">WhatsApp Message <span class="accent">Studio</span></h1>
+  <p class="text-sm mt-1" style="color:#BECDDE">Business WhatsApp message banao — 3 ready variants, copy button aur wa.me link ke saath. <strong class="text-white">Bina key ke bhi chalta hai</strong> (templates se). Key ho to AI polish bhi milega.</p>
+
+  <div class="card p-4 mt-5">
+    <h2 class="font-bold text-sm tracking-wide">MESSAGE DETAILS</h2>
+    <div class="grid md:grid-cols-2 gap-3">
+      <div><label>Message ka purpose</label>
+        <select id="purpose">
+          <option value="offer">Offer / Discount announcement</option>
+          <option value="reminder">Booking reminder</option>
+          <option value="festival">Festival greeting + offer</option>
+          <option value="followup">Follow-up (purane customer ko)</option>
+          <option value="newservice">New service launch</option>
+        </select></div>
+      <div><label>Language</label>
+        <select id="lang">
+          <option value="hinglish">Hinglish</option>
+          <option value="english">English</option>
+          <option value="hindi">Hindi</option>
+        </select></div>
+    </div>
+    <div class="grid md:grid-cols-2 gap-3">
+      <div><label>Business name</label><input type="text" id="biz" placeholder="e.g. Glow &amp; Shine Salon"></div>
+      <div><label>Customer name (optional)</label><input type="text" id="cust" placeholder="e.g. Rahul"></div>
+    </div>
+    <label>Offer / detail (kya batana hai)</label>
+    <textarea id="detail" rows="3" placeholder="e.g. Haircut + Beard combo sirf ₹249, is Sunday tak. Booking ke liye reply karo."></textarea>
+    <div class="grid md:grid-cols-2 gap-3">
+      <div><label>Customer ka WhatsApp number (optional, wa.me link ke liye)</label><input type="text" id="phone" placeholder="91 ke saath, e.g. 919876543210"></div>
+      <div class="flex items-end"><button class="btn w-full" id="genBtn" type="button">3 Variants banao</button></div>
+    </div>
+    <div id="formErr" class="mt-3"></div>
+  </div>
+
+  <div id="outWrap" class="mt-5 hidden">
+    <div class="flex items-center justify-between">
+      <h2 class="font-bold">Ready messages</h2>
+      <button class="btn-ghost" id="polishBtn" type="button">AI se polish karo (key chahiye)</button>
+    </div>
+    <div id="outBox" class="flex flex-col gap-3 mt-3"></div>
+    <p id="polishMsg" class="text-xs mt-2" style="color:#8FA6BC"></p>
+  </div>
+
+  <div class="card p-4 mt-6">
+    <div class="flex items-center justify-between">
+      <h2 class="font-bold text-sm tracking-wide">API KEY (BYOK) — sirf AI polish ke liye</h2>
+      <span id="keyStatus" class="text-xs"></span>
+    </div>
+    <div class="grid md:grid-cols-3 gap-3">
+      <div><label>Provider</label>
+        <select id="provSel">
+          <option value="gemini">Google Gemini (free key)</option>
+          <option value="openrouter">OpenRouter</option>
+          <option value="groq">Groq</option>
+        </select></div>
+      <div><label>Your API key</label><input type="password" id="keyInput" placeholder="Paste your key" autocomplete="off"></div>
+      <div><label>Model</label><input type="text" id="modelInput"></div>
+    </div>
+    <div class="flex items-center gap-3 mt-3">
+      <button class="btn-ghost" id="saveKeyBtn" type="button">Save key in this browser</button>
+      <p class="text-xs" style="color:#8FA6BC">Key sirf tumhare browser me rehti hai. Free Gemini key: <span class="accent">aistudio.google.com/apikey</span></p>
+    </div>
+  </div>
+
+  <footer class="text-center text-xs mt-10 pb-6" style="color:#8FA6BC">SatyamLabs AI Agents Lab · Built by Satyam Kumar · Messages bhejna tumhare haath me — ye tool sirf banata hai, khud nahi bhejta</footer>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const PROVIDERS={gemini:{model:'gemini-2.0-flash'},openrouter:{model:'google/gemini-2.0-flash-exp:free'},groq:{model:'llama-3.3-70b-versatile'}};
+function loadKey(){const p=$('provSel').value;$('keyInput').value=localStorage.getItem('byok_key_'+p)||'';$('modelInput').value=localStorage.getItem('byok_model_'+p)||PROVIDERS[p].model;updateKeyStatus();}
+function saveKey(){const p=$('provSel').value;localStorage.setItem('byok_key_'+p,$('keyInput').value.trim());localStorage.setItem('byok_model_'+p,$('modelInput').value.trim()||PROVIDERS[p].model);updateKeyStatus();}
+function updateKeyStatus(){const has=!!$('keyInput').value.trim();$('keyStatus').textContent=has?'Key saved in this browser':'No key set';$('keyStatus').style.color=has?'#4ADE80':'#FFB020';}
+function settings(){return{provider:$('provSel').value,key:$('keyInput').value.trim(),model:$('modelInput').value.trim()};}
+function friendlyErr(status,data){const raw=(data&&data.error&&(data.error.message||data.error.code))||'';if(status===400)return 'Request reject hua (400). Model ka naam check karo. '+raw;if(status===401||status===403)return 'Key accept nahi hui ('+status+'). Sahi key daalo ya provider check karo. '+raw;if(status===429)return 'Limit khatam (429). Thoda ruk ke try karo, ya dusra provider chuno. '+raw;return 'Provider error ('+status+'). '+raw;}
+async function aiChat(system,messages){
+  const s=settings();
+  if(!s.key)throw new Error('AI polish ke liye pehle neeche apni API key daalo aur Save karo. Templates bina key ke bhi bante hain.');
+  if(!s.model)throw new Error('Model ka naam khaali hai — default model wapas likho.');
+  if(s.provider==='gemini'){
+    const contents=messages.map(m=>({role:m.role==='assistant'?'model':'user',parts:[{text:m.content}]}));
+    const body={contents:contents,generationConfig:{temperature:0.7,maxOutputTokens:1200}};
+    if(system)body.system_instruction={parts:[{text:system}]};
+    const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(s.model)+':generateContent',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':s.key},body:JSON.stringify(body)});
+    const data=await r.json().catch(()=>({}));
+    if(!r.ok)throw new Error(friendlyErr(r.status,data));
+    const txt=(data.candidates&&data.candidates[0]&&data.candidates[0].content&&data.candidates[0].content.parts||[]).map(p=>p.text||'').join('');
+    if(!txt)throw new Error('AI se khaali jawab aaya. Dobara try karo.');
+    return txt;
+  }
+  const url=s.provider==='openrouter'?'https://openrouter.ai/api/v1/chat/completions':'https://api.groq.com/openai/v1/chat/completions';
+  const msgs=(system?[{role:'system',content:system}]:[]).concat(messages);
+  const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+s.key},body:JSON.stringify({model:s.model,messages:msgs,temperature:0.7,max_tokens:1200})});
+  const data=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(friendlyErr(r.status,data));
+  const txt=data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content||'';
+  if(!txt)throw new Error('AI se khaali jawab aaya. Dobara try karo.');
+  return txt;
+}
+const T={
+  hinglish:{
+    greet:c=>c?('Namaste '+c+' ji!'):('Namaste!'),
+    offer:[
+      (g,b,d)=>g+' '+b+' se ek khaas khabar hai.\n'+d+'\nDer kis baat ki? Apna time book karne ke liye isi number par reply karein.',
+      (g,b,d)=>g+' Sirf aapke liye — '+b+' me ab '+d+'\nSlot jaldi bhar jate hain, pehle aao pehle pao. Reply karke booking pakki karein.',
+      (g,b,d)=>g+' Ek chhota sa update '+b+' ki taraf se: '+d+'\nKoi sawal ho to yahin pooch lein, hum turant jawab denge.'],
+    reminder:[
+      (g,b,d)=>g+' '+b+' se yaad dila rahe hain: '+d+'\nTime par aayein, bina line ke seedha service payein. Kuch badalna ho to reply karein.',
+      (g,b,d)=>g+' Aapki booking ki yaad — '+d+'\nDer ho rahi ho to bas ek reply kar dein, hum time adjust kar denge. — '+b,
+      (g,b,d)=>g+' Bas ek chhoti si reminder '+b+' se: '+d+'\nAapka time humne reserve rakha hai. Milte hain jald!'],
+    festival:[
+      (g,b,d)=>g+' Tyohar ki dher saari shubhkamnayein '+b+' ki taraf se!\nIs khaas mauke par: '+d+'\nApno ke saath khushi manayein, aur khud ke liye bhi thoda time nikalein.',
+      (g,b,d)=>g+' '+b+' ki ore se tyohar mubarak!\n'+d+'\nReply karke apna slot book karein — tyohar ki bheed se pehle.',
+      (g,b,d)=>g+' Is tyohar, thoda sa khaas aapke liye — '+d+'\n— Team '+b],
+    followup:[
+      (g,b,d)=>g+' Kuch time ho gaya aapko '+b+' aaye hue. Aapki yaad aayi!\n'+d+'\nJab time mile, reply kar dein — aapka slot ready milega.',
+      (g,b,d)=>g+' Umeed hai sab badhiya hoga. '+b+' se ek pyaara sa sandesh: '+d+'\nPurane customers ke liye hum hamesha kuch khaas rakhte hain.',
+      (g,b,d)=>g+' Aap hamare khaas customers me se hain. Isiliye pehle aapko bata rahe hain: '+d+'\n— '+b],
+    newservice:[
+      (g,b,d)=>g+' Khushkhabri! '+b+' me kuch naya shuru hua hai: '+d+'\nSabse pehle try karne ke liye reply karein aur apna time book karein.',
+      (g,b,d)=>g+' Aapne manga, humne sun liya. '+b+' laya hai: '+d+'\nDetails ke liye yahin sawal poochein.',
+      (g,b,d)=>g+' Naya update '+b+' se: '+d+'\nPehle kuch customers ke liye khaas daam — reply karke jaanein.']
+  },
+  english:{
+    greet:c=>c?('Hello '+c+'!'):('Hello!'),
+    offer:[
+      (g,b,d)=>g+' A special update from '+b+'.\n'+d+'\nReply on this number to book your slot.',
+      (g,b,d)=>g+' Just for you — at '+b+': '+d+'\nSlots fill fast. Reply to confirm your booking.',
+      (g,b,d)=>g+' Quick update from '+b+': '+d+'\nAny questions? Ask right here, we reply fast.'],
+    reminder:[
+      (g,b,d)=>g+' A friendly reminder from '+b+': '+d+'\nPlease arrive on time to skip the wait. Reply if you need to reschedule.',
+      (g,b,d)=>g+' Reminder: '+d+'\nRunning late? Just reply and we will adjust. — '+b,
+      (g,b,d)=>g+' Your time is reserved at '+b+'. '+d+'\nSee you soon!'],
+    festival:[
+      (g,b,d)=>g+' Warm festival wishes from all of us at '+b+'!\nTo celebrate: '+d+'\nReply to book your slot before the festive rush.',
+      (g,b,d)=>g+' Happy festival from '+b+'!\n'+d+'\nCelebrate with family, and take a little time for yourself too.',
+      (g,b,d)=>g+' A festive treat for you: '+d+'\n— Team '+b],
+    followup:[
+      (g,b,d)=>g+' It has been a while since your last visit to '+b+'. We miss you!\n'+d+'\nReply anytime — your slot will be ready.',
+      (g,b,d)=>g+' Hope you are doing well. A small note from '+b+': '+d+'\nOld customers always get something special with us.',
+      (g,b,d)=>g+' You are one of our valued customers, so you hear it first: '+d+'\n— '+b],
+    newservice:[
+      (g,b,d)=>g+' Good news! Something new at '+b+': '+d+'\nReply to be among the first to try it.',
+      (g,b,d)=>g+' You asked, we listened. '+b+' now offers: '+d+'\nAsk here for details.',
+      (g,b,d)=>g+' New at '+b+': '+d+'\nSpecial price for the first few customers — reply to know more.']
+  },
+  hindi:{
+    greet:c=>c?('नमस्ते '+c+' जी!'):('नमस्ते!'),
+    offer:[
+      (g,b,d)=>g+' '+b+' से एक ख़ास ख़बर है।\n'+d+'\nअपना समय बुक करने के लिए इसी नंबर पर जवाब दें।',
+      (g,b,d)=>g+' सिर्फ़ आपके लिए — '+b+' में अब '+d+'\nजगह जल्दी भर जाती है, पहले आओ पहले पाओ। जवाब देकर बुकिंग पक्की करें।',
+      (g,b,d)=>g+' एक छोटा सा संदेश '+b+' की तरफ़ से: '+d+'\nकोई सवाल हो तो यहीं पूछ लें, हम तुरंत जवाब देंगे।'],
+    reminder:[
+      (g,b,d)=>g+' '+b+' से याद दिला रहे हैं: '+d+'\nसमय पर आएँ, बिना लाइन के सीधे सेवा पाएँ। कुछ बदलना हो तो जवाब दें।',
+      (g,b,d)=>g+' आपकी बुकिंग की याद — '+d+'\nदेर हो रही हो तो बस एक जवाब कर दें, हम समय बदल देंगे। — '+b,
+      (g,b,d)=>g+' बस एक छोटी सी याद '+b+' से: '+d+'\nआपका समय हमने सुरक्षित रखा है। जल्द मिलते हैं!'],
+    festival:[
+      (g,b,d)=>g+' त्योहार की ढेर सारी शुभकामनाएँ '+b+' की तरफ़ से!\nइस ख़ास मौके पर: '+d+'\nअपनों के साथ ख़ुशी मनाएँ, और ख़ुद के लिए भी थोड़ा समय निकालें।',
+      (g,b,d)=>g+' '+b+' की ओर से त्योहार मुबारक!\n'+d+'\nजवाब देकर अपना समय बुक करें — त्योहार की भीड़ से पहले।',
+      (g,b,d)=>g+' इस त्योहार, थोड़ा सा ख़ास आपके लिए — '+d+'\n— टीम '+b],
+    followup:[
+      (g,b,d)=>g+' कुछ समय हो गया आपको '+b+' आए हुए। आपकी याद आई!\n'+d+'\nजब समय मिले, जवाब कर दें — आपका समय तैयार मिलेगा।',
+      (g,b,d)=>g+' उम्मीद है सब बढ़िया होगा। '+b+' से एक प्यारा सा संदेश: '+d+'\nपुराने ग्राहकों के लिए हम हमेशा कुछ ख़ास रखते हैं।',
+      (g,b,d)=>g+' आप हमारे ख़ास ग्राहकों में से हैं। इसीलिए पहले आपको बता रहे हैं: '+d+'\n— '+b],
+    newservice:[
+      (g,b,d)=>g+' ख़ुशख़बरी! '+b+' में कुछ नया शुरू हुआ है: '+d+'\nसबसे पहले आज़माने के लिए जवाब करें और अपना समय बुक करें।',
+      (g,b,d)=>g+' आपने माँगा, हमने सुन लिया। '+b+' लाया है: '+d+'\nजानकारी के लिए यहीं सवाल पूछें।',
+      (g,b,d)=>g+' नया संदेश '+b+' से: '+d+'\nपहले कुछ ग्राहकों के लिए ख़ास दाम — जवाब करके जानें।']
+  }
+};
+let currentVariants=[];
+function showFormErr(msg){$('formErr').innerHTML='';if(!msg)return;const d=document.createElement('div');d.className='err';d.textContent=msg;$('formErr').appendChild(d);}
+function renderVariants(list){
+  currentVariants=list;
+  const box=$('outBox');box.innerHTML='';
+  const phone=$('phone').value.replace(/\D/g,'');
+  list.forEach((txt,i)=>{
+    const wrap=document.createElement('div');
+    const v=document.createElement('div');v.className='variant';v.textContent=txt;wrap.appendChild(v);
+    const row=document.createElement('div');row.className='flex gap-2 mt-2 items-center';
+    const copy=document.createElement('button');copy.className='btn-ghost';copy.type='button';copy.textContent='Copy';
+    copy.addEventListener('click',()=>{navigator.clipboard.writeText(txt).then(()=>{copy.textContent='Copied ✓';setTimeout(()=>copy.textContent='Copy',1500);});});
+    row.appendChild(copy);
+    if(phone){
+      const a=document.createElement('a');a.className='btn-ghost';a.style.textDecoration='none';
+      a.href='https://wa.me/'+phone+'?text='+encodeURIComponent(txt);a.target='_blank';a.rel='noopener';
+      a.textContent='WhatsApp par kholo (wa.me)';
+      row.appendChild(a);
+    }
+    const tag=document.createElement('span');tag.className='ok';tag.textContent='Variant '+(i+1);row.appendChild(tag);
+    wrap.appendChild(row);
+    box.appendChild(wrap);
+  });
+  $('outWrap').classList.remove('hidden');
+}
+$('genBtn').addEventListener('click',()=>{
+  const biz=$('biz').value.trim(),detail=$('detail').value.trim(),cust=$('cust').value.trim();
+  if(!biz){showFormErr('Business name likhna zaroori hai.');return;}
+  if(!detail){showFormErr('Offer / detail likhna zaroori hai — customer ko kya batana hai?');return;}
+  showFormErr('');
+  const lang=T[$('lang').value];
+  const g=lang.greet(cust);
+  const list=lang[$('purpose').value].map(fn=>fn(g,biz,detail));
+  renderVariants(list);
+  $('polishMsg').textContent='';
+});
+$('polishBtn').addEventListener('click',async()=>{
+  if(!currentVariants.length)return;
+  $('polishBtn').disabled=true;$('polishBtn').textContent='Polish ho raha hai…';
+  $('polishMsg').textContent='';
+  try{
+    const sys='You polish business WhatsApp messages. Keep the same meaning, prices and facts. Make the language warmer, shorter and more natural. Keep the same language as the input (Hinglish stays Hinglish, English stays English, Hindi stays Hindi). Return exactly 3 improved variants, separated by a line containing only === . No numbering, no extra commentary.';
+    const out=await aiChat(sys,[{role:'user',content:'Polish these 3 WhatsApp message variants:\n\n'+currentVariants.join('\n\n---\n\n')}]);
+    const parts=out.split(/\n===\n/).map(s=>s.trim()).filter(Boolean);
+    if(parts.length>=2){renderVariants(parts.slice(0,3));$('polishMsg').textContent='AI polish ho gaya. Bhejne se pehle ek baar padh zaroor lo.';}
+    else{$('polishMsg').textContent='AI ka jawab alag format me aaya, isliye purane variants hi rehne diye. Dobara try kar sakte ho.';}
+  }catch(e){
+    $('polishMsg').textContent=e.message;
+  }
+  $('polishBtn').disabled=false;$('polishBtn').textContent='AI se polish karo (key chahiye)';
+});
+$('provSel').addEventListener('change',loadKey);
+$('saveKeyBtn').addEventListener('click',saveKey);
+loadKey();
+</script>
+</body>
+</html>
