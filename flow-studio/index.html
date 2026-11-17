@@ -5,40 +5,57 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FlowStudio — WhatsApp Automation Builder</title>
 <meta name="description" content="A mini visual automation builder for WhatsApp Cloud API — chain trigger, message and delay blocks, run them from your browser with your own Meta credentials (BYOC). No server.">
-<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="../lab.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  body{background:#0B1F3A;color:#EAF1F8;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
-  .card{background:#10294D;border:1px solid #1E3A5F;border-radius:16px}
-  .accent{color:#FFB020}
-  input,select,textarea{background:#0B1F3A;border:1px solid #1E3A5F;border-radius:10px;padding:10px 12px;width:100%;color:#EAF1F8;font-size:14px}
-  input:focus,select:focus,textarea:focus{outline:none;border-color:#FFB020}
-  label{font-size:12px;letter-spacing:.05em;color:#8FA6BC;display:block;margin:10px 0 4px}
-  .btn{background:#FFB020;color:#0B1F3A;font-weight:700;border-radius:10px;padding:10px 18px}
-  .btn:disabled{opacity:.5}
-  .btn-ghost{background:transparent;border:1px solid #1E3A5F;color:#BECDDE;border-radius:10px;padding:9px 14px;font-size:13px}
+  :root{--bg:#FAFAF9;--surface:#FFFFFF;--ink:#171512;--body:#292524;--muted:#78716C;--line:#E7E3DC;--accent:#E50914;--accent-dark:#B00610;--ok:#15803D}
+  body{background:var(--bg);color:var(--body);font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:'Fraunces',Georgia,'Times New Roman',serif;color:var(--ink)}
+  .text-white{color:var(--ink)!important}
+  .eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:14px}
+  .accent{color:var(--accent-dark)}
+  a.accent:hover{text-decoration:underline}
+  input,select,textarea{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%;color:var(--ink);font-size:14px;font-family:inherit}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--ink)}
+  label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:block;margin:10px 0 5px;font-weight:600}
+  .btn{background:var(--ink);color:#FFFFFF;font-weight:600;border:1px solid var(--ink);border-radius:10px;padding:10px 18px;cursor:pointer}
+  .btn:hover{background:#000000}
+  .btn:disabled{opacity:.45;cursor:default}
+  .btn-ghost{background:transparent;border:1px solid var(--line);color:var(--body);border-radius:10px;padding:9px 14px;font-size:13px;cursor:pointer}
+  .btn-ghost:hover{border-color:var(--ink);color:var(--ink)}
   .btn-ghost:disabled{opacity:.4}
-  .err{background:#3A1420;border:1px solid #7F1D2D;color:#FCA5A5;border-radius:10px;padding:10px 12px;font-size:13.5px}
-  .warn{background:#3A2C10;border:1px solid #FFB020;color:#FDE9C0;border-radius:10px;padding:10px 12px;font-size:13.5px}
-  .okbox{background:#0F2E1D;border:1px solid #1F7A44;color:#A7F3C7;border-radius:10px;padding:10px 12px;font-size:13.5px}
-  .ok{color:#4ADE80}
-  .block{background:#10294D;border:1px solid #1E3A5F;border-radius:14px;padding:14px}
+  .err{background:#FDF3F3;border:1px solid #EFC9C9;color:#8A1F1F;border-radius:10px;padding:10px 12px;font-size:13.5px}
+  .note{font-size:12px;color:var(--muted)}
+  footer{color:var(--muted)}
+
+  .warn{background:#FBF7EA;border:1px solid #E4DCC3;color:#57503C;border-radius:10px;padding:10px 12px;font-size:13.5px}
+  .okbox{background:#F1F7F1;border:1px solid #C9E2C9;color:#1E5631;border-radius:10px;padding:10px 12px;font-size:13.5px}
+  .ok{color:var(--ok)}
+  .block{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px}
   .block-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
-  .block-type{font-size:11px;letter-spacing:.08em;padding:3px 9px;border-radius:999px;border:1px solid #FFB020;color:#FFB020;font-weight:700}
-  .block-type.green{border-color:#4ADE80;color:#4ADE80}
-  .block-type.blue{border-color:#7DD3FC;color:#7DD3FC}
-  .mini-btn{background:#0B1F3A;border:1px solid #1E3A5F;color:#BECDDE;border-radius:8px;padding:4px 10px;font-size:13px;line-height:1}
+  .block-type{font-size:11px;letter-spacing:.08em;padding:3px 9px;border-radius:999px;border:1px solid var(--ink);color:var(--ink);font-weight:700}
+  .block-type.green{border-color:var(--ok);color:var(--ok)}
+  .block-type.blue{border-color:#A8A29E;color:#57534E}
+  .mini-btn{background:var(--surface);border:1px solid var(--line);color:#44403C;border-radius:8px;padding:4px 10px;font-size:13px;line-height:1;cursor:pointer}
   .mini-btn:disabled{opacity:.35}
-  .connector{width:2px;height:22px;background:#FFB020;margin:0 auto;opacity:.7}
-  .connector-arrow{text-align:center;color:#FFB020;font-size:12px;line-height:1;margin-top:-4px}
-  #log{background:#071426;border:1px solid #1E3A5F;border-radius:12px;padding:12px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.65;height:280px;overflow-y:auto;white-space:pre-wrap;word-break:break-word}
-  .log-info{color:#BECDDE}.log-ok{color:#4ADE80}.log-err{color:#FCA5A5}.log-step{color:#FFB020}
+  .connector{width:1px;height:22px;background:#D6D3D1;margin:0 auto}
+  .connector-arrow{text-align:center;color:#A8A29E;font-size:12px;line-height:1;margin-top:-4px}
+  #log{background:#171512;border:1px solid #171512;border-radius:12px;padding:12px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.65;height:280px;overflow-y:auto;white-space:pre-wrap;word-break:break-word}
+  .log-info{color:#D6D3D1}.log-ok{color:#4ADE80}.log-err{color:#FCA5A5}.log-step{color:#FFFFFF;font-weight:600}
 </style>
 </head>
 <body class="min-h-screen">
-<div class="max-w-3xl mx-auto px-4 py-6">
-  <a href="../" class="text-sm accent">← All tools</a>
-  <h1 class="text-3xl font-extrabold mt-2">Flow<span class="accent">Studio</span></h1>
-  <p class="text-sm mt-1" style="color:#BECDDE">WhatsApp automation ka visual builder — n8n style. Blocks jodo (trigger → message → delay), apni <strong class="text-white">khud ki Meta WhatsApp Cloud API</strong> details daalo, aur flow yahin browser se chalao. <strong class="text-white">BYOC</strong> — Bring Your Own Credentials.</p>
+<div class="max-w-3xl mx-auto px-4 py-10">
+  <div class="flex items-center justify-between">
+    <a href="../" class="text-sm accent">← All tools</a>
+    <span class="eyebrow">AI Agents Lab</span>
+  </div>
+  <p class="eyebrow" style="margin-top:44px">Tool 09 · Automation · Bring your own credentials</p>
+  <h1 style="font-size:2.5rem;line-height:1.08;font-weight:600;margin-top:10px">FlowStudio</h1>
+  <p style="color:#44403C;font-size:15px;line-height:1.65;margin-top:12px">WhatsApp automation ka visual builder — n8n style. Blocks jodo (trigger → message → delay), apni <strong class="text-white">khud ki Meta WhatsApp Cloud API</strong> details daalo, aur flow yahin browser se chalao. <strong class="text-white">BYOC</strong> — Bring Your Own Credentials.</p>
 
   <!-- CONNECT PANEL -->
   <div class="card p-4 mt-5">
@@ -54,7 +71,7 @@
     <div class="flex flex-wrap items-center gap-3 mt-3">
       <button class="btn-ghost" id="saveConnBtn" type="button">Save in this browser</button>
       <button class="btn" id="testConnBtn" type="button">Test connection</button>
-      <p class="text-xs" style="color:#8FA6BC">Credentials sirf tumhare browser (localStorage) me rehte hain — sirf Meta ki API ko bheje jate hain, kisi aur ko nahi. Details Meta for Developers → WhatsApp → API Setup me milte hain.</p>
+      <p class="text-xs" style="color:#78716C">Credentials sirf tumhare browser (localStorage) me rehte hain — sirf Meta ki API ko bheje jate hain, kisi aur ko nahi. Details Meta for Developers → WhatsApp → API Setup me milte hain.</p>
     </div>
     <div id="connMsg" class="mt-3"></div>
   </div>
@@ -63,7 +80,7 @@
   <div class="warn mt-4">
     <strong>⚠️ Pehle ye samajh lo:</strong> Message sirf unhi numbers par bhejo jinhone tumse WhatsApp par baat karne ki <strong>permission (opt-in)</strong> di hai. Bina permission ke bulk/spam messages bhejne par <strong>WhatsApp tumhara number ban kar sakta hai</strong> — ye Meta ka rule hai. Isi liye: ek run me <strong>max 20 recipients</strong>, har send ke beech automatic gap, aur naya message hamesha <strong>template</strong> se shuru hota hai (yahi compliant tareeka hai). Ye tool koi number scrape ya import nahi karta — number tum khud type karte ho.
   </div>
-  <div class="card p-3 mt-3 text-xs" style="color:#8FA6BC">
+  <div class="card p-3 mt-3 text-xs" style="color:#78716C">
     <strong class="text-white">Honest limit:</strong> Browser edition — flows run while this page is open; there is no server or background scheduler. Page band = flow band. Free-text messages sirf tab deliver hote hain jab customer ne pichhle 24 ghante me tumhe message kiya ho (WhatsApp ka 24-hour window rule) — naye customers ke liye hamesha template message use karo.
   </div>
 
@@ -75,7 +92,7 @@
       <button class="btn-ghost recipeBtn" type="button" data-recipe="reminder">⏰ Appointment Reminder</button>
       <button class="btn-ghost recipeBtn" type="button" data-recipe="offer">🎁 Offer to Opted-in Customers</button>
     </div>
-    <p class="text-xs mt-2" style="color:#8FA6BC">Recipe load karne se neeche ka flow badal jayega. Template names apne Meta account ke <em>approved</em> templates se badal lena — <span class="accent">hello_world</span> Meta ka free test template hai jo har account par chalta hai.</p>
+    <p class="text-xs mt-2" style="color:#78716C">Recipe load karne se neeche ka flow badal jayega. Template names apne Meta account ke <em>approved</em> templates se badal lena — <span class="accent">hello_world</span> Meta ka free test template hai jo har account par chalta hai.</p>
   </div>
 
   <!-- FLOW BUILDER -->
@@ -85,6 +102,9 @@
     <div class="flex flex-wrap gap-2 mt-3">
       <button class="btn-ghost" id="addSendBtn" type="button">+ Send Message block</button>
       <button class="btn-ghost" id="addDelayBtn" type="button">+ Delay block</button>
+      <button class="btn-ghost" id="exportBtn" type="button">Export flow (.json)</button>
+      <button class="btn-ghost" id="importBtn" type="button">Import flow</button>
+      <input type="file" id="importFile" accept=".json,application/json" class="hidden">
     </div>
   </div>
 
@@ -105,14 +125,14 @@
     <div class="flex flex-wrap items-center gap-3 mt-3">
       <button class="btn" id="runBtn" type="button">▶ Run flow</button>
       <button class="btn-ghost" id="stopBtn" type="button" disabled>Stop</button>
-      <span id="runMsg" class="text-xs" style="color:#8FA6BC"></span>
+      <span id="runMsg" class="text-xs" style="color:#78716C"></span>
     </div>
   </div>
 
   <!-- LEAD FORM TRIGGER -->
   <div class="card p-4 mt-5">
     <h2 class="font-bold text-sm tracking-wide">5 · LEAD FORM TRIGGER — DEMO</h2>
-    <p class="text-xs mt-1" style="color:#8FA6BC">Ye chhota form tumhari website ke lead form jaisa hai. Customer ke submit karte hi flow usi ke number par chalega — variables me uska <em>name</em> aur <em>message</em> aa jayega. Asli website par aisa form tumhare server se judega; yahan demo ke liye sab browser me hota hai.</p>
+    <p class="text-xs mt-1" style="color:#78716C">Ye chhota form tumhari website ke lead form jaisa hai. Customer ke submit karte hi flow usi ke number par chalega — variables me uska <em>name</em> aur <em>message</em> aa jayega. Asli website par aisa form tumhare server se judega; yahan demo ke liye sab browser me hota hai.</p>
     <div class="grid md:grid-cols-3 gap-3">
       <div><label>Customer name</label><input type="text" id="leadName" placeholder="e.g. Priya"></div>
       <div><label>Customer WhatsApp number</label><input type="text" id="leadPhone" placeholder="91 ke saath"></div>
@@ -131,7 +151,7 @@
     <div id="log" class="mt-2"></div>
   </div>
 
-  <footer class="text-center text-xs mt-10 pb-6" style="color:#8FA6BC">SatyamLabs AI Agents Lab · Built by Satyam Kumar · FlowStudio tumhare khud ke Meta credentials se, tumhare browser se chalta hai — humara koi server beech me nahi hai</footer>
+  <footer class="text-center text-xs mt-10 pb-6" style="color:#78716C">SatyamLabs AI Agents Lab · Built by Satyam Kumar · FlowStudio tumhare khud ke Meta credentials se, tumhare browser se chalta hai — humara koi server beech me nahi hai</footer>
 </div>
 
 <script>
@@ -154,7 +174,7 @@ function loadFlow(){
 function saveFlow(){localStorage.setItem(LS.flow,JSON.stringify(flow));}
 function loadConn(){$('phoneId').value=localStorage.getItem(LS.phone)||'';$('token').value=localStorage.getItem(LS.token)||'';$('apiVer').value=localStorage.getItem(LS.ver)||'v21.0';updateConnStatus();}
 function saveConn(){localStorage.setItem(LS.phone,$('phoneId').value.trim());localStorage.setItem(LS.token,$('token').value.trim());localStorage.setItem(LS.ver,$('apiVer').value.trim()||'v21.0');updateConnStatus();log('Credentials is browser me save ho gaye (localStorage).','info');}
-function updateConnStatus(){const has=!!($('phoneId').value.trim()&&$('token').value.trim());$('connStatus').textContent=has?'Saved in this browser':'Not set';$('connStatus').style.color=has?'#4ADE80':'#FFB020';}
+function updateConnStatus(){const has=!!($('phoneId').value.trim()&&$('token').value.trim());$('connStatus').textContent=has?'Saved in this browser':'Not set';$('connStatus').style.color=has?'#15803D':'#B00610';}
 function creds(){return{phone:$('phoneId').value.trim(),token:$('token').value.trim(),ver:($('apiVer').value.trim()||'v21.0').replace(/^\/+|\/+$/g,'')};}
 function loadVars(){try{const v=JSON.parse(localStorage.getItem(LS.vars));if(v){['name','business','offer','date','time'].forEach(k=>{if(v[k]!=null&&$('v_'+k))$('v_'+k).value=v[k];});}}catch(e){}$('recipients').value=localStorage.getItem(LS.recips)||'';}
 function saveVars(){const v={};['name','business','offer','date','time'].forEach(k=>v[k]=$('v_'+k).value);localStorage.setItem(LS.vars,JSON.stringify(v));localStorage.setItem(LS.recips,$('recipients').value);}
@@ -174,7 +194,7 @@ function esc(s){return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g
 function blockHTML(b,i){
   const total=flow.length;
   const controls=b.type==='trigger'
-    ? '<span class="text-xs" style="color:#8FA6BC">hamesha pehla block</span>'
+    ? '<span class="text-xs" style="color:#78716C">hamesha pehla block</span>'
     : '<button class="mini-btn" data-act="up" data-id="'+b.id+'" '+(i<=1?'disabled':'')+'>↑</button>'
       +' <button class="mini-btn" data-act="down" data-id="'+b.id+'" '+(i>=total-1?'disabled':'')+'>↓</button>'
       +' <button class="mini-btn" data-act="del" data-id="'+b.id+'">✕</button>';
@@ -183,7 +203,7 @@ function blockHTML(b,i){
     inner='<label>Trigger type</label><select data-f="mode" data-id="'+b.id+'">'
       +'<option value="manual" '+(b.mode==='manual'?'selected':'')+'>Manual run — Run button se chalega</option>'
       +'<option value="lead" '+(b.mode==='lead'?'selected':'')+'>Lead Form — neeche wale form ke submit par chalega</option></select>'
-      +'<p class="text-xs mt-2" style="color:#8FA6BC">Flow yahin se shuru hota hai. Manual = tum Run dabao. Lead Form = customer form bhare.</p>';
+      +'<p class="text-xs mt-2" style="color:#78716C">Flow yahin se shuru hota hai. Manual = tum Run dabao. Lead Form = customer form bhare.</p>';
   }else if(b.type==='send'){
     inner='<label>Message type</label><select data-f="mode" data-id="'+b.id+'">'
       +'<option value="template" '+(b.mode==='template'?'selected':'')+'>Template message (compliant default)</option>'
@@ -201,7 +221,7 @@ function blockHTML(b,i){
   }else if(b.type==='delay'){
     inner='<label>Delay (seconds) — agle block se pehle itna rukega</label>'
       +'<input type="number" min="0" max="600" data-f="seconds" data-id="'+b.id+'" value="'+esc(b.seconds)+'">'
-      +'<p class="text-xs mt-2" style="color:#8FA6BC">Max 600 seconds (browser edition — page khula rehna chahiye).</p>';
+      +'<p class="text-xs mt-2" style="color:#78716C">Max 600 seconds (browser edition — page khula rehna chahiye).</p>';
   }
   const label=b.type==='trigger'?'⚡ TRIGGER':(b.type==='send'?'✉️ SEND MESSAGE':'⏱️ DELAY');
   const cls=b.type==='trigger'?'':(b.type==='send'?' green':' blue');
@@ -374,6 +394,25 @@ $('clearLogBtn').addEventListener('click',()=>{$('log').innerHTML='';});
 ['phoneId','token','apiVer'].forEach(id=>$(id).addEventListener('input',updateConnStatus));
 loadConn();loadVars();renderFlow();
 log('FlowStudio ready hai. Pehle CONNECT panel me apni Meta details daal ke "Test connection" dabao.','info');
+</script>
+
+<script>
+document.getElementById('exportBtn').addEventListener('click',function(){
+  const data=JSON.stringify({app:'FlowStudio',version:1,exported:new Date().toISOString(),flow:flow},null,2);
+  const b=new Blob([data],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='flowstudio-flow.json';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u);},2000);
+  log('Flow export ho gaya: flowstudio-flow.json','ok');
+});
+document.getElementById('importBtn').addEventListener('click',function(){document.getElementById('importFile').click();});
+document.getElementById('importFile').addEventListener('change',function(e){
+  const f=e.target.files[0];if(!f)return;
+  const rd=new FileReader();
+  rd.onload=function(){try{const data=JSON.parse(rd.result);const fl=Array.isArray(data)?data:data.flow;
+    if(!Array.isArray(fl)||!fl.length||fl[0].type!=='trigger')throw new Error('bad format');
+    fl.forEach(function(b){if(!b.id)b.id=nid();});
+    flow=fl;saveFlow();renderFlow();log('Flow import ho gaya — '+fl.length+' blocks.','ok');
+  }catch(err){log('Import fail: file sahi FlowStudio JSON nahi hai.','err');}};
+  rd.readAsText(f);e.target.value='';
+});
 </script>
 </body>
 </html>

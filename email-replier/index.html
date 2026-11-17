@@ -5,26 +5,44 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Email Replier — SatyamLabs AI Agents Lab</title>
 <meta name="description" content="Paste an incoming email, pick a tone, and get a professional reply draft. Runs on your own API key — the email never touches any server of ours.">
-<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="../lab.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  body{background:#0B1F3A;color:#EAF1F8;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
-  .card{background:#10294D;border:1px solid #1E3A5F;border-radius:16px}
-  .accent{color:#FFB020}
-  input,select,textarea{background:#0B1F3A;border:1px solid #1E3A5F;border-radius:10px;padding:10px 12px;width:100%;color:#EAF1F8;font-size:14px}
-  input:focus,select:focus,textarea:focus{outline:none;border-color:#FFB020}
-  label{font-size:12px;letter-spacing:.05em;color:#8FA6BC;display:block;margin:10px 0 4px}
-  .btn{background:#FFB020;color:#0B1F3A;font-weight:700;border-radius:10px;padding:10px 18px}
-  .btn:disabled{opacity:.5}
-  .btn-ghost{background:transparent;border:1px solid #1E3A5F;color:#BECDDE;border-radius:10px;padding:9px 14px;font-size:13px}
-  .outbox{background:#0B1F3A;border:1px solid #1E3A5F;border-radius:12px;padding:14px;white-space:pre-wrap;font-size:14.5px;line-height:1.6;min-height:120px}
-  .err{background:#3A1420;border:1px solid #7F1D2D;color:#FCA5A5;border-radius:10px;padding:10px 12px;font-size:13.5px}
+  :root{--bg:#FAFAF9;--surface:#FFFFFF;--ink:#171512;--body:#292524;--muted:#78716C;--line:#E7E3DC;--accent:#E50914;--accent-dark:#B00610;--ok:#15803D}
+  body{background:var(--bg);color:var(--body);font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:'Fraunces',Georgia,'Times New Roman',serif;color:var(--ink)}
+  .text-white{color:var(--ink)!important}
+  .eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:14px}
+  .accent{color:var(--accent-dark)}
+  a.accent:hover{text-decoration:underline}
+  input,select,textarea{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%;color:var(--ink);font-size:14px;font-family:inherit}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--ink)}
+  label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:block;margin:10px 0 5px;font-weight:600}
+  .btn{background:var(--ink);color:#FFFFFF;font-weight:600;border:1px solid var(--ink);border-radius:10px;padding:10px 18px;cursor:pointer}
+  .btn:hover{background:#000000}
+  .btn:disabled{opacity:.45;cursor:default}
+  .btn-ghost{background:transparent;border:1px solid var(--line);color:var(--body);border-radius:10px;padding:9px 14px;font-size:13px;cursor:pointer}
+  .btn-ghost:hover{border-color:var(--ink);color:var(--ink)}
+  .btn-ghost:disabled{opacity:.4}
+  .err{background:#FDF3F3;border:1px solid #EFC9C9;color:#8A1F1F;border-radius:10px;padding:10px 12px;font-size:13.5px}
+  .note{font-size:12px;color:var(--muted)}
+  footer{color:var(--muted)}
+
+  .outbox{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;white-space:pre-wrap;font-size:14.5px;line-height:1.65;min-height:120px;color:var(--ink)}
 </style>
 </head>
 <body class="min-h-screen">
-<div class="max-w-3xl mx-auto px-4 py-6">
-  <a href="../" class="text-sm accent">← All tools</a>
-  <h1 class="text-3xl font-extrabold mt-2">Email <span class="accent">Replier</span></h1>
-  <p class="text-sm mt-1" style="color:#BECDDE">Aaya hua email paste karo, tone chuno — professional reply draft ready. Bhejne se pehle hamesha khud padho; ye tool sirf draft banata hai, khud email nahi bhejta.</p>
+<div class="max-w-3xl mx-auto px-4 py-10">
+  <div class="flex items-center justify-between">
+    <a href="../" class="text-sm accent">← All tools</a>
+    <span class="eyebrow">AI Agents Lab</span>
+  </div>
+  <p class="eyebrow" style="margin-top:44px">Tool 07 · Writing</p>
+  <h1 style="font-size:2.5rem;line-height:1.08;font-weight:600;margin-top:10px">Email Replier</h1>
+  <p style="color:#44403C;font-size:15px;line-height:1.65;margin-top:12px">Aaya hua email paste karo, tone chuno — professional reply draft ready. Bhejne se pehle hamesha khud padho; ye tool sirf draft banata hai, khud email nahi bhejta.</p>
 
   <div class="card p-4 mt-5">
     <div class="flex items-center justify-between">
@@ -43,12 +61,13 @@
     </div>
     <div class="flex items-center gap-3 mt-3">
       <button class="btn-ghost" id="saveKeyBtn" type="button">Save key in this browser</button>
-      <p class="text-xs" style="color:#8FA6BC">Key sirf tumhare browser me rehti hai. Email seedha tumhare browser se provider ko jata hai. Free Gemini key: <span class="accent">aistudio.google.com/apikey</span></p>
+      <p class="text-xs" style="color:#78716C">Key sirf tumhare browser me rehti hai. Email seedha tumhare browser se provider ko jata hai. Free Gemini key: <span class="accent">aistudio.google.com/apikey</span></p>
     </div>
   </div>
 
   <div class="card p-4 mt-4">
     <h2 class="font-bold text-sm tracking-wide">EMAIL DETAILS</h2>
+    <button class="btn-ghost" id="exBtn" type="button" style="margin-top:10px">Try an example</button>
     <label>Aaya hua email (paste karo)</label>
     <textarea id="incoming" rows="7" placeholder="Poora email yahan paste karo — subject ke saath ho to aur accha"></textarea>
     <div class="grid md:grid-cols-3 gap-3">
@@ -73,12 +92,23 @@
     <div class="flex items-center justify-between">
       <h2 class="font-bold">Reply draft</h2>
       <button class="btn-ghost" id="copyBtn" type="button">Copy reply</button>
+      <button class="btn-ghost" id="dlBtn" type="button">Download .txt</button>
     </div>
     <div class="outbox mt-3" id="outBox"></div>
-    <p class="text-xs mt-2" style="color:#8FA6BC">Draft hai — naam, date aur waade bhejne se pehle khud check karo. Jo baat pakki nahi, use reply me pakka mat likho.</p>
+    <p class="text-xs mt-2" style="color:#78716C">Draft hai — naam, date aur waade bhejne se pehle khud check karo. Jo baat pakki nahi, use reply me pakka mat likho.</p>
   </div>
 
-  <footer class="text-center text-xs mt-10 pb-6" style="color:#8FA6BC">SatyamLabs AI Agents Lab · Built by Satyam Kumar · Your key stays in your browser</footer>
+
+  <div id="histWrap" class="mt-8 hidden">
+    <div class="flex items-center justify-between">
+      <h2 class="font-bold text-lg">Recent outputs</h2>
+      <button class="btn-ghost" id="histClear" type="button">Clear history</button>
+    </div>
+    <p class="note mt-1">Sirf is browser me save hote hain — kahin upload nahi hote.</p>
+    <div id="histBox" class="flex flex-col gap-3 mt-3"></div>
+  </div>
+
+  <footer class="text-center text-xs mt-10 pb-6" style="color:#78716C">SatyamLabs AI Agents Lab · Built by Satyam Kumar · Your key stays in your browser</footer>
 </div>
 
 <script>
@@ -86,7 +116,7 @@ const $=id=>document.getElementById(id);
 const PROVIDERS={gemini:{model:'gemini-2.0-flash'},openrouter:{model:'google/gemini-2.0-flash-exp:free'},groq:{model:'llama-3.3-70b-versatile'}};
 function loadKey(){const p=$('provSel').value;$('keyInput').value=localStorage.getItem('byok_key_'+p)||'';$('modelInput').value=localStorage.getItem('byok_model_'+p)||PROVIDERS[p].model;updateKeyStatus();}
 function saveKey(){const p=$('provSel').value;localStorage.setItem('byok_key_'+p,$('keyInput').value.trim());localStorage.setItem('byok_model_'+p,$('modelInput').value.trim()||PROVIDERS[p].model);updateKeyStatus();}
-function updateKeyStatus(){const has=!!$('keyInput').value.trim();$('keyStatus').textContent=has?'Key saved in this browser':'No key set';$('keyStatus').style.color=has?'#4ADE80':'#FFB020';}
+function updateKeyStatus(){const has=!!$('keyInput').value.trim();$('keyStatus').textContent=has?'Key saved in this browser':'No key set';$('keyStatus').style.color=has?'#15803D':'#B00610';}
 function settings(){return{provider:$('provSel').value,key:$('keyInput').value.trim(),model:$('modelInput').value.trim()};}
 function friendlyErr(status,data){const raw=(data&&data.error&&(data.error.message||data.error.code))||'';if(status===400)return 'Request reject hua (400). Model ka naam check karo. '+raw;if(status===401||status===403)return 'Key accept nahi hui ('+status+'). Sahi key daalo ya provider check karo. '+raw;if(status===429)return 'Limit khatam (429). Thoda ruk ke try karo, ya dusra provider chuno. '+raw;return 'Provider error ('+status+'). '+raw;}
 async function aiChat(system,messages){
@@ -127,7 +157,7 @@ $('genBtn').addEventListener('click',async()=>{
   const userMsg='Incoming email:\n"""\n'+incoming+'\n"""'+(must?('\n\nThis must be included in the reply: '+must):'');
   try{
     const out=await aiChat(sys,[{role:'user',content:userMsg}]);
-    $('outBox').textContent=out.trim();
+    $('outBox').textContent=out.trim();labSaveHist(out.trim());
     $('resultWrap').classList.remove('hidden');
     $('resultWrap').scrollIntoView({behavior:'smooth',block:'start'});
   }catch(e){showErr(e.message);}
@@ -137,6 +167,39 @@ $('copyBtn').addEventListener('click',()=>{navigator.clipboard.writeText($('outB
 $('provSel').addEventListener('change',loadKey);
 $('saveKeyBtn').addEventListener('click',saveKey);
 loadKey();
+</script>
+
+<script>
+function downloadText(text,filename){const b=new Blob([text],{type:'text/plain'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),2000);}
+const HIST_KEY='labhist_email-replier';
+function labLoadHist(){try{return JSON.parse(localStorage.getItem(HIST_KEY))||[]}catch(e){return[]}}
+function labSaveHist(text){if(!text)return;let h=labLoadHist();h.unshift({t:Date.now(),text:text});h=h.slice(0,5);try{localStorage.setItem(HIST_KEY,JSON.stringify(h));}catch(e){}labRenderHist();}
+function labRenderHist(){
+  const h=labLoadHist();const wrap=document.getElementById('histWrap');if(!wrap)return;
+  if(!h.length){wrap.classList.add('hidden');return;}
+  wrap.classList.remove('hidden');
+  const box=document.getElementById('histBox');box.innerHTML='';
+  h.forEach(function(item){
+    const card=document.createElement('div');card.className='card p-3';
+    const meta=document.createElement('p');meta.className='note';meta.textContent=new Date(item.t).toLocaleString();card.appendChild(meta);
+    const prev=document.createElement('p');prev.style.cssText='font-size:13.5px;line-height:1.55;white-space:pre-wrap;margin-top:4px';prev.textContent=item.text.length>220?item.text.slice(0,220)+'\u2026':item.text;card.appendChild(prev);
+    const row=document.createElement('div');row.className='flex gap-2 mt-2';
+    const cp=document.createElement('button');cp.type='button';cp.className='btn-ghost';cp.textContent='Copy';
+    cp.addEventListener('click',function(){navigator.clipboard.writeText(item.text).then(function(){cp.textContent='Copied \u2713';setTimeout(function(){cp.textContent='Copy';},1500);});});
+    const dl=document.createElement('button');dl.type='button';dl.className='btn-ghost';dl.textContent='Download .txt';
+    dl.addEventListener('click',function(){downloadText(item.text,'email-replier-output.txt');});
+    row.appendChild(cp);row.appendChild(dl);card.appendChild(row);
+    box.appendChild(card);
+  });
+}
+const labDl=document.getElementById('dlBtn');
+if(labDl)labDl.addEventListener('click',function(){const t=document.getElementById('outBox').textContent;if(t)downloadText(t,'email-replier-output.txt');});
+const labHc=document.getElementById('histClear');
+if(labHc)labHc.addEventListener('click',function(){try{localStorage.removeItem(HIST_KEY);}catch(e){}labRenderHist();});
+labRenderHist();
+</script>
+<script>
+const exB=document.getElementById('exBtn');if(exB)exB.addEventListener('click',function(){document.getElementById('incoming').value='Subject: Website banane ka quotation chahiye\n\nHello,\n\nMeri ek clothing shop hai, Patna me. Mujhe apni shop ke liye ek simple website chahiye jisme products dikhein aur WhatsApp par order aa sake. Aap kitna charge karenge aur kitne din me ban jayegi?\n\n— Rakesh Gupta, Rakesh Garments';document.getElementById('myName').value='Satyam Kumar';document.getElementById('myRole').value='Freelance Web Developer';});
 </script>
 </body>
 </html>

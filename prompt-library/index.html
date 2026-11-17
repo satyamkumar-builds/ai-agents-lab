@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Library — AI Agents Lab</title>
+<meta name="description" content="Copy-ready prompts for studying, coding, exams and interviews. No API key, no account — paste them into any AI chat. Part of SatyamLabs AI Agents Lab.">
+<link rel="stylesheet" href="../lab.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#FAFAF9;--surface:#FFFFFF;--ink:#171512;--body:#292524;--muted:#78716C;--line:#E7E3DC;--accent:#E50914;--accent-dark:#B00610;--ok:#15803D}
+  body{background:var(--bg);color:var(--body);font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:'Fraunces',Georgia,'Times New Roman',serif;color:var(--ink)}
+  .eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .accent{color:var(--accent-dark)}
+  a.accent:hover{text-decoration:underline}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:14px}
+  .btn-ghost{background:transparent;border:1px solid var(--line);color:var(--body);border-radius:10px;padding:8px 14px;font-size:13px;cursor:pointer}
+  .btn-ghost:hover{border-color:var(--ink);color:var(--ink)}
+  .chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 14px;font-size:12.5px;color:var(--body);cursor:pointer}
+  .chip:hover{border-color:var(--ink);color:var(--ink)}
+  .chip.on{background:var(--ink);color:#FAFAF9;border-color:var(--ink)}
+  .prompt-text{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:13.5px;line-height:1.65;white-space:pre-wrap;color:var(--body)}
+  input{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%;color:var(--ink);font-size:14px;font-family:inherit}
+  input:focus{outline:none;border-color:var(--ink)}
+  .note{font-size:12px;color:var(--muted)}
+  footer{color:var(--muted)}
+</style>
+</head>
+<body class="min-h-screen">
+<div class="max-w-5xl mx-auto px-5 py-10">
+  <div class="flex items-center justify-between">
+    <a href="../" class="text-sm accent">← All tools</a>
+    <span class="eyebrow">AI Agents Lab</span>
+  </div>
+  <p class="eyebrow" style="margin-top:44px">Tool 10 · Library · No key needed</p>
+  <h1 style="font-size:2.5rem;line-height:1.08;font-weight:600;margin-top:10px">Prompt Library</h1>
+  <p style="color:#44403C;font-size:15px;line-height:1.65;margin-top:12px;max-width:44em">23 prompts written for students — for understanding a topic, preparing for an exam or an interview, or getting unstuck on code. Copy one, fill the [brackets], and paste it into any AI chat: Gemini, ChatGPT, or the tools in this Lab. No account and no API key needed for this page.</p>
+  <p class="note mt-3">A good prompt is a good instruction. These are the ones worth reusing — each one tells the AI how to teach, not just what to answer.</p>
+
+  <div class="flex flex-wrap items-center gap-2 mt-8" id="filters"></div>
+  <div class="mt-4" style="max-width:26em"><input type="text" id="search" placeholder="Search prompts… e.g. viva, bug, resume"></div>
+  <p class="note mt-3" id="countLine"></p>
+
+  <div class="grid gap-4 md:grid-cols-2 mt-5" id="grid"></div>
+  <div id="empty" class="hidden mt-8">
+    <p style="color:#44403C">No prompt matches that search. Try a shorter word — or browse a category above.</p>
+  </div>
+
+  <footer class="text-center text-xs mt-12 pb-6">SatyamLabs AI Agents Lab · Built by Satyam Kumar · Prompts are free to copy and share</footer>
+</div>
+
+<script>
+const CATS=[{"id": "study", "label": "Study & Concepts"}, {"id": "exam", "label": "Exam Prep"}, {"id": "coding", "label": "Coding Help"}, {"id": "placement", "label": "Placement & Interviews"}, {"id": "writing", "label": "Writing & Content"}];
+const PROMPTS=[{"cat": "study", "title": "The Feynman Teacher", "text": "Explain [topic] to me like a good teacher: first a tiny real-life story, then one simple example, then the key points in short bullets. End with one question to test me. If I answer wrong, correct me gently and explain that part again in simpler words."}, {"cat": "study", "title": "Find My Misconception", "text": "I think [topic] works like this: [write your understanding in 2-3 lines]. Read it carefully and tell me exactly where my understanding is wrong or incomplete. Explain the correct idea with one example, then give me one question to check I fixed it."}, {"cat": "study", "title": "Analogy First", "text": "Explain [concept] using an analogy from [cricket / cooking / trains — pick one]. First give the analogy, then map every part of the analogy to the real concept, and finally tell me where the analogy stops being accurate."}, {"cat": "study", "title": "Rough Notes to Revision Notes", "text": "Here are my rough class notes: [paste notes]. Turn them into clean revision notes: short headings, one-line definitions, one example under each concept, and a 'must remember' box at the end with the 5 most exam-worthy points. Do not add facts that are not in my notes."}, {"cat": "study", "title": "One Question at a Time", "text": "Teach me [topic] by asking me questions, one at a time. Start easy. After each of my answers, tell me if I am right, fix my mistake in one line, then ask the next, slightly harder question. Do not lecture me unless I ask."}, {"cat": "exam", "title": "Mock Viva", "text": "Act as my viva examiner for [subject], unit [unit name]. Ask me 10 oral questions, one at a time. After each answer, give me a score out of 10, say what was missing in one line, then ask the next question. At the end, list my 3 weakest areas."}, {"cat": "exam", "title": "Exam-Style Question Set", "text": "Create a practice set on [topic] in the style of a university semester paper: 3 two-mark questions, 2 five-mark questions and 1 ten-mark question. After the questions, give a model-answer outline for each — main points only, so I can practise writing full answers myself."}, {"cat": "exam", "title": "Last-Day Revision Plan", "text": "My exam is tomorrow. I have [number] hours to study. Chapters: [list chapters and roughly how well you know each]. Make an hour-by-hour revision plan that puts my weak, high-weight chapters first, keeps 10-minute breaks, and leaves the last 30 minutes only for formulas and definitions."}, {"cat": "exam", "title": "Formula & Facts Sheet", "text": "For the chapter [chapter name], list every formula, definition and named law I must memorise. For each one add a one-line 'when to use it' note and one tiny example value. Keep it as a clean table I can revise from in 10 minutes."}, {"cat": "coding", "title": "Bug Hunt — Don't Fix It For Me", "text": "Here is my code and the error I get: [paste code + error]. Do NOT give me the fixed code. Point me to the line where the problem starts, explain the concept behind the error, and ask me questions until I find the fix myself. If I am stuck after 3 tries, give a hint, not the answer."}, {"cat": "coding", "title": "Line-by-Line Explanation", "text": "Explain this code to me line by line, as if I am a beginner: [paste code]. For each line say what it does in plain words. At the end, list 3 questions a teacher could ask me about this code in a viva, with short answers."}, {"cat": "coding", "title": "Dry-Run Partner", "text": "Dry-run this code with me: [paste code]. Use this input: [sample input]. Show a table of every variable's value after each step, and stop wherever the output surprises most beginners — explain why that step behaves that way."}, {"cat": "coding", "title": "Concept Ladder", "text": "Teach me [programming concept] in 3 levels. Level 1: the intuition in plain words with a real-life example. Level 2: a small working code example, explained. Level 3: edge cases and one common mistake. Give me one small practice task after each level and wait for my attempt before moving on."}, {"cat": "coding", "title": "DSA Interview Practice", "text": "Give me one [arrays / strings / recursion — pick one] problem at [easy / medium] level, the way an interviewer would — statement and constraints only, no hints. I will explain my approach first. Review my approach and its time and space complexity, and only discuss the optimal solution after I have tried."}, {"cat": "placement", "title": "Mock HR Interview", "text": "Take my mock HR interview for a [role] position. Ask one common question at a time, starting with 'Tell me about yourself'. After each of my answers, tell me honestly how a recruiter would hear it, and suggest one specific improvement. Keep my facts the same — only improve how I present them."}, {"cat": "placement", "title": "Two-Minute Project Pitch", "text": "Help me prepare a 2-minute spoken explanation of my project: [project name — what it does, tech used, one hard problem I solved]. Structure it as: the problem, what I built, my tech choices and why, the hardest part. Then ask me 3 follow-up questions an interviewer is likely to ask, and wait for my answers."}, {"cat": "placement", "title": "Resume Bullet Improver", "text": "Turn this work into strong resume bullets: [describe what you actually did]. Give me 3 versions using an action verb plus the result. Do not invent numbers, users or percentages — if a number would help, ask me for the real one instead of guessing."}, {"cat": "placement", "title": "Aptitude Drill", "text": "Give me 5 aptitude questions on [percentages / time and work / trains — pick one], exam pattern, no answers yet. I will answer all 5. Then check them, and for each question show the shortcut method an exam topper would use to solve it faster."}, {"cat": "placement", "title": "Interview Answer Polish", "text": "Here is my answer to an interview question: [paste your answer]. Correct the grammar and make it sound natural and confident, but keep my meaning and my simple words. Show me the polished version and point out the 2-3 changes that matter most, so I learn the pattern."}, {"cat": "writing", "title": "Reel Script Structure", "text": "Write a 30-45 second video script on [topic] in this structure: TITLE, HOOK (0-3 seconds, one spoken line), BODY (one idea per line), ON-SCREEN TEXT (3-5 short lines), CTA (one spoken line). Spoken lines should use commas and full stops only, in natural spoken [Hindi / Hinglish / English]."}, {"cat": "writing", "title": "Three Caption Options", "text": "Write 3 caption options for a [Instagram / LinkedIn / X] post about [topic]: one informative, one personal and honest, one that ends with a question for the audience. Sound like a real person, not an ad. Put hashtags on a separate line at the end, and do not use words like 'game-changer' or 'revolutionary'."}, {"cat": "writing", "title": "Professional Email Draft", "text": "Draft a short, professional email to [person / role] about [purpose]. Tone: polite and clear, under 120 words. Give me 3 subject-line options first, then the email. Leave [brackets] wherever a fact is needed from me instead of inventing it."}, {"cat": "writing", "title": "Simplify My Paragraph", "text": "Rewrite this paragraph so a Class 10 student can understand it easily: [paste paragraph]. Keep every fact the same, replace jargon with everyday words, and break long sentences into short ones. Do not add new claims."}];
+const catLabel={};CATS.forEach(c=>catLabel[c.id]=c.label);
+let activeCat='all';
+const filtersEl=document.getElementById('filters');
+function mkChip(id,label){
+  const b=document.createElement('button');b.type='button';b.className='chip'+(activeCat===id?' on':'');b.textContent=label;
+  b.addEventListener('click',()=>{activeCat=id;renderFilters();render();});
+  return b;
+}
+function renderFilters(){filtersEl.innerHTML='';filtersEl.appendChild(mkChip('all','All prompts'));CATS.forEach(c=>filtersEl.appendChild(mkChip(c.id,c.label)));}
+function render(){
+  const q=document.getElementById('search').value.trim().toLowerCase();
+  const grid=document.getElementById('grid');grid.innerHTML='';
+  let shown=0;
+  PROMPTS.forEach(p=>{
+    if(activeCat!=='all'&&p.cat!==activeCat)return;
+    if(q&&!(p.title.toLowerCase().includes(q)||p.text.toLowerCase().includes(q)||catLabel[p.cat].toLowerCase().includes(q)))return;
+    shown++;
+    const card=document.createElement('div');card.className='card p-5 flex flex-col';
+    const top=document.createElement('div');top.className='flex items-center justify-between';
+    const cat=document.createElement('span');cat.className='eyebrow';cat.textContent=catLabel[p.cat];top.appendChild(cat);
+    const cp=document.createElement('button');cp.type='button';cp.className='btn-ghost';cp.textContent='Copy prompt';
+    cp.addEventListener('click',()=>{navigator.clipboard.writeText(p.text).then(()=>{cp.textContent='Copied \u2713';setTimeout(()=>cp.textContent='Copy prompt',1500);});});
+    top.appendChild(cp);card.appendChild(top);
+    const h=document.createElement('h3');h.className='font-semibold text-lg mt-3';h.textContent=p.title;card.appendChild(h);
+    const body=document.createElement('div');body.className='prompt-text mt-3';body.textContent=p.text;card.appendChild(body);
+    grid.appendChild(card);
+  });
+  document.getElementById('empty').classList.toggle('hidden',shown>0);
+  document.getElementById('countLine').textContent='Showing '+shown+' of '+PROMPTS.length+' prompts';
+}
+document.getElementById('search').addEventListener('input',render);
+renderFilters();render();
+</script>
+</body>
+</html>

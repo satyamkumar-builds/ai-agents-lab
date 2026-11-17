@@ -1,55 +1,51 @@
-# SatyamLabs AI Agents Lab
+# AI Agents Lab
 
-9 free AI agents and automations that run on **your own API key** (BYOK — Bring Your Own Key). FlowStudio runs on your own **Meta WhatsApp credentials** (BYOC) instead.
+Ten free, open-source tools that finish a job — a ready-to-send WhatsApp message, a shoot-ready video script, a reply draft, a working WhatsApp automation — and run entirely in your browser.
 
-**Live site:** https://satyamkumar-builds.github.io/ai-agents-lab/
+**Live:** https://satyamkumar-builds.github.io/ai-agents-lab/
 
-No sign-up. No backend. No server stores your key — every tool runs fully in your browser, and your key is saved only in your own browser's localStorage.
+No sign-up. No server. The AI tools run on your own API key (BYOK), and that key is stored only in your browser's local storage — requests go straight from your browser to the provider. Two tools need no key at all.
+
+## Why this exists
+
+A general chatbot gives you a conversation. These tools are shaped around one job each — a fixed script format, platform-specific post rules, templates that follow WhatsApp's compliance rules — so the output is finished work you can copy, download and reuse.
 
 ## The tools
 
-### AI Agents (chat, with conversation memory)
+| # | Tool | What it does | Needs |
+|---|------|--------------|-------|
+| 1 | [StudyBuddy AI](https://satyamkumar-builds.github.io/ai-agents-lab/study-buddy/) | Explains any topic story-first, with an example, key points and a check question | Your API key |
+| 2 | [CodeMentor AI](https://satyamkumar-builds.github.io/ai-agents-lab/code-mentor/) | Line-by-line code explanations, bug hunts with reasons, practice tasks | Your API key |
+| 3 | [Salon & Business Assistant](https://satyamkumar-builds.github.io/ai-agents-lab/business-assistant/) | Demo customer-support agent configured with your own services and prices | Your API key |
+| 4 | [ScriptWriter AI](https://satyamkumar-builds.github.io/ai-agents-lab/script-writer/) | Short-video scripts: hook, body, on-screen text, CTA — timed to duration | Your API key |
+| 5 | [WhatsApp Message Studio](https://satyamkumar-builds.github.io/ai-agents-lab/whatsapp-studio/) | 45 ready business WhatsApp templates in 3 languages, plus optional AI polish | Nothing (key optional) |
+| 6 | [FlowStudio](https://satyamkumar-builds.github.io/ai-agents-lab/flow-studio/) | Visual WhatsApp automation builder — trigger → message → delay blocks, run from your browser | Your Meta WhatsApp credentials |
+| 7 | [Social Post Generator](https://satyamkumar-builds.github.io/ai-agents-lab/social-post-generator/) | Ready posts for Instagram, LinkedIn and X with platform rules built in | Your API key |
+| 8 | [Email Replier](https://satyamkumar-builds.github.io/ai-agents-lab/email-replier/) | Professional reply drafts in five tones, without invented facts or promises | Your API key |
+| 9 | [Profile Optimizer](https://satyamkumar-builds.github.io/ai-agents-lab/profile-optimizer/) | LinkedIn/Fiverr headline options and bio rewrites — honest improvements only | Your API key |
+| 10 | [Prompt Library](https://satyamkumar-builds.github.io/ai-agents-lab/prompt-library/) | 23 copy-ready prompts for study, coding, exams and interviews | Nothing |
 
-| Tool | What it does | Live |
-|---|---|---|
-| StudyBuddy AI | Explains any topic simply — story first, then example — in Hindi / Hinglish / English, for students | [study-buddy](https://satyamkumar-builds.github.io/ai-agents-lab/study-buddy/) |
-| CodeMentor AI | Explains code line by line, finds bugs, teaches the fix instead of just dumping a solution | [code-mentor](https://satyamkumar-builds.github.io/ai-agents-lab/code-mentor/) |
-| Salon & Business Assistant | Demo customer-support agent for a small business — answers customer questions, suggests bookings; business name and services are editable | [business-assistant](https://satyamkumar-builds.github.io/ai-agents-lab/business-assistant/) |
-| ScriptWriter AI | Writes short-form video scripts (hook, body, CTA) in Hindi / Hinglish / English from a topic | [script-writer](https://satyamkumar-builds.github.io/ai-agents-lab/script-writer/) |
+## Quick start
 
-### Automations (form → one-click output)
+1. Open the [live site](https://satyamkumar-builds.github.io/ai-agents-lab/) — no install, no account.
+2. For AI tools, get a free Google Gemini API key from [aistudio.google.com/apikey](https://aistudio.google.com/apikey) and paste it into the tool. OpenRouter and Groq keys also work — switch the provider inside any tool.
+3. To run it locally: clone this repo and open `index.html`, or serve the folder with any static server, e.g. `python3 -m http.server`.
 
-| Tool | What it does | Live |
-|---|---|---|
-| WhatsApp Message Studio | 3 ready-to-send business WhatsApp message variants + a wa.me link. Works template-only without a key; AI polish if you add one | [whatsapp-studio](https://satyamkumar-builds.github.io/ai-agents-lab/whatsapp-studio/) |
-| Social Post Generator | Caption + hashtags + best-posting-time tip for Instagram / LinkedIn / X | [social-post-generator](https://satyamkumar-builds.github.io/ai-agents-lab/social-post-generator/) |
-| Email Replier | Paste an incoming email, pick a tone, get a professional reply draft | [email-replier](https://satyamkumar-builds.github.io/ai-agents-lab/email-replier/) |
-| Profile Optimizer | Paste a LinkedIn / Fiverr bio, get improved versions + headline options | [profile-optimizer](https://satyamkumar-builds.github.io/ai-agents-lab/profile-optimizer/) |
-| FlowStudio — WhatsApp Automation Builder | Mini n8n-style visual builder for WhatsApp Cloud API: chain trigger → send message → delay blocks, run flows from your browser with your own Meta credentials (BYOC), with a lead-form trigger demo and one-click recipes. Sends only to numbers you type, max 20 per run | [flow-studio](https://satyamkumar-builds.github.io/ai-agents-lab/flow-studio/) |
+## Tech notes
 
-## Get a free API key (1 minute)
+- Plain HTML, CSS and JavaScript. No framework, no backend, and no build step to view or edit the site. (The shared `lab.css` is a precompiled Tailwind stylesheet — the pages link it directly instead of loading a CSS framework from a CDN at runtime.)
+- AI requests are made directly from the browser to the provider's API (Gemini `generateContent`, or the OpenAI-compatible endpoints of OpenRouter and Groq). Keys live in `localStorage` under `byok_key_<provider>` and are never sent anywhere else.
+- FlowStudio calls Meta's Graph API with credentials the user provides; they stay in the user's browser too. It enforces an opt-in warning and a 20-recipient cap per run.
+- Recent outputs and chat history are kept in the visitor's own browser (`localStorage`) — nothing is uploaded or tracked.
 
-1. Go to [aistudio.google.com/apikey](https://aistudio.google.com/apikey) and sign in with Google.
-2. Click **Create API key** and copy it.
-3. Open any tool above, paste the key in the key box, and start.
+## Honest limits
 
-OpenRouter and Groq keys also work — switch the provider inside any tool and (if you want) change the model name.
+These are small, single-purpose tools, not a platform. FlowStudio runs only while its page is open. AI answer quality depends on the model behind your key.
 
-**FlowStudio is different:** it does not use an AI key. It uses your own **Meta WhatsApp Cloud API** credentials (Phone Number ID + Access Token from Meta for Developers → WhatsApp → API Setup), saved only in your browser and sent only to Meta's Graph API. Browser edition — flows run only while the page is open; there is no server or background scheduler.
+## Contributing
 
-## How BYOK works here
+Improvements are welcome — open an issue or a pull request. Please keep the same principles: no backend, no tracking, no invented claims in copy, and tools that finish a job rather than start a chat.
 
-- The key is stored **only in your browser** (localStorage), separately per provider.
-- Requests go **directly from your browser** to the provider API (Google / OpenRouter / Groq). This site has no backend and never sees your key.
-- You can delete the key any time by clearing it in the tool and pressing Save, or by clearing site data in your browser.
+## Licence
 
-## Tech
-
-Plain HTML + vanilla JavaScript + Tailwind CDN. No build step, no framework, hosted on GitHub Pages. Each tool is a single self-contained `index.html` — view source and copy the pattern freely.
-
-## Author
-
-Built by **Satyam Kumar** — founder of Line Free India, building SatyamLabs.
-GitHub: [@satyamkumar-builds](https://github.com/satyamkumar-builds)
-
-These tools are live demos for the **AI Agents & Automation** division of his portfolio. They are honest working demos — no fake users, no fake ratings.
+MIT — see [LICENSE](LICENSE). Built by [Satyam Kumar](https://satyamkumar-builds.github.io/animated-portfolio/) (SatyamLabs).

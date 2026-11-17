@@ -3,99 +3,319 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SatyamLabs AI Agents Lab — 9 Free Tools (BYOK / BYOC)</title>
-<meta name="description" content="9 free AI agents and automations that run on your own API key or your own Meta WhatsApp credentials. No sign-up, no server, no key storage. Built by Satyam Kumar (SatyamLabs).">
-<script src="https://cdn.tailwindcss.com"></script>
+<title>AI Agents Lab — Open-source AI tools that finish the job, in your browser</title>
+<meta name="description" content="Ten free, open-source tools that run entirely in your browser. No sign-up. Your API key never leaves your device. Built by Satyam Kumar (SatyamLabs).">
+<link rel="stylesheet" href="lab.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  body{background:#0B1F3A;color:#EAF1F8;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
-  .card{background:#10294D;border:1px solid #1E3A5F;border-radius:16px;transition:transform .15s ease,border-color .15s ease}
-  .card:hover{transform:translateY(-3px);border-color:#FFB020}
-  .accent{color:#FFB020}
-  .tag{font-size:11px;letter-spacing:.08em;padding:3px 9px;border-radius:999px;border:1px solid #FFB020;color:#FFB020}
-  .tag-auto{border-color:#4ADE80;color:#4ADE80}
+  :root{--bg:#FAFAF9;--surface:#FFFFFF;--ink:#171512;--body:#292524;--muted:#78716C;--line:#E7E3DC;--accent:#E50914;--accent-dark:#B00610;--ok:#15803D}
+  body{background:var(--bg);color:var(--body);font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:'Fraunces',Georgia,'Times New Roman',serif;color:var(--ink)}
+  .eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .accent{color:var(--accent-dark)}
+  a.accent:hover{text-decoration:underline}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;transition:border-color .15s ease}
+  a.card:hover{border-color:var(--ink)}
+  .btn{display:inline-block;background:var(--ink);color:#FFFFFF;font-weight:600;border:1px solid var(--ink);border-radius:10px;padding:11px 20px;font-size:14.5px}
+  .btn:hover{background:#000000}
+  .btn-ghost{display:inline-block;background:transparent;border:1px solid var(--line);color:var(--body);border-radius:10px;padding:11px 20px;font-size:14.5px;font-weight:500}
+  .btn-ghost:hover{border-color:var(--ink);color:var(--ink)}
+  .badge{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted);font-weight:600;white-space:nowrap}
+  .badge-free{border-color:#BFDCC4;color:var(--ok)}
+  .num{font-family:'Fraunces',Georgia,serif;font-size:13px;color:var(--accent-dark);font-weight:600}
+  .example{background:var(--bg);border:1px solid var(--line);border-left:3px solid var(--ink);border-radius:8px;padding:12px 14px;font-size:13.5px;line-height:1.6;white-space:pre-wrap;color:var(--body)}
+  .rule{border-top:1px solid var(--line)}
+  details{border-bottom:1px solid var(--line);padding:16px 0}
+  details summary{cursor:pointer;font-weight:600;color:var(--ink);font-size:15.5px;list-style:none}
+  details summary::-webkit-details-marker{display:none}
+  details p{margin-top:8px;font-size:14.5px;line-height:1.65;color:var(--body)}
+  .step-num{font-family:'Fraunces',Georgia,serif;font-size:28px;color:var(--accent-dark);font-weight:600;line-height:1}
+  footer a:hover{text-decoration:underline}
 </style>
 </head>
 <body class="min-h-screen">
-<header class="max-w-5xl mx-auto px-5 pt-12 pb-6 text-center">
-  <p class="text-sm tracking-widest accent font-semibold">SATYAMLABS</p>
-  <h1 class="text-4xl md:text-5xl font-extrabold mt-2">AI Agents <span class="accent">Lab</span></h1>
-  <p class="mt-4 text-base md:text-lg" style="color:#BECDDE">9 free tools that run on <strong class="text-white">your own API key</strong> — ya FlowStudio ke liye, tumhare <strong class="text-white">apne Meta WhatsApp credentials</strong>.<br class="hidden md:block">
-  No sign-up. No server. Your key never leaves your browser.</p>
+
+<!-- Masthead -->
+<header class="max-w-5xl mx-auto px-5 pt-6 flex items-center justify-between">
+  <span class="font-bold tracking-wide" style="color:var(--ink)">SatyamLabs</span>
+  <nav class="flex gap-5 text-sm" style="color:var(--muted)">
+    <a href="#tools" class="hover:underline">Tools</a>
+    <a href="prompt-library/">Prompt Library</a>
+    <a href="#how">How it works</a>
+    <a href="https://github.com/satyamkumar-builds/ai-agents-lab" target="_blank" rel="noopener">GitHub</a>
+  </nav>
 </header>
 
-<section class="max-w-5xl mx-auto px-5 pb-4">
-  <div class="card p-5 md:p-6">
-    <h2 class="font-bold text-lg mb-3">How it works — BYOK (Bring Your Own Key)</h2>
-    <ol class="list-decimal ml-5 space-y-1 text-sm md:text-base" style="color:#BECDDE">
-      <li>Get a <strong class="text-white">free Google Gemini API key</strong> from <span class="accent">aistudio.google.com/apikey</span> (takes 1 minute).</li>
-      <li>Open any tool below and paste your key in the key box. It is saved only in <strong class="text-white">your browser</strong>.</li>
-      <li>Use the tool. Requests go straight from your browser to the AI provider — nothing passes through us.</li>
-    </ol>
-    <p class="text-xs mt-3" style="color:#8FA6BC">OpenRouter and Groq keys also work — just switch the provider inside any tool.</p>
+<!-- Hero -->
+<section class="max-w-5xl mx-auto px-5 pt-16 pb-14">
+  <p class="eyebrow">SatyamLabs · Open Source · MIT</p>
+  <h1 class="mt-4" style="font-size:3.2rem;line-height:1.05;font-weight:600;max-width:14em">AI Agents Lab</h1>
+  <p class="mt-6 text-lg leading-relaxed" style="max-width:38em">A chat window gives you text. These tools finish a job — a ready-to-send WhatsApp message, a shoot-ready video script, a reply draft, a working WhatsApp automation. Ten small tools, each built for one task, running entirely in your browser.</p>
+  <p class="mt-4 leading-relaxed" style="max-width:38em;color:var(--muted)">No sign-up. No server in the middle. The AI tools run on your own API key, and that key is stored only in your browser — requests go straight from your device to the provider. Two tools need no key at all.</p>
+  <div class="flex flex-wrap gap-3 mt-8">
+    <a class="btn" href="https://github.com/satyamkumar-builds/ai-agents-lab" target="_blank" rel="noopener">View source on GitHub</a>
+    <a class="btn-ghost" href="https://github.com/satyamkumar-builds/ai-agents-lab" target="_blank" rel="noopener">Star the repo</a>
+    <a class="btn-ghost" href="#tools">Browse the tools</a>
+  </div>
+  <div class="flex flex-wrap gap-x-8 gap-y-2 mt-10 text-sm" style="color:var(--muted)">
+    <span><strong style="color:var(--ink)">No sign-up</strong> — open and use</span>
+    <span><strong style="color:var(--ink)">Your key stays local</strong> — browser storage only</span>
+    <span><strong style="color:var(--ink)">Free &amp; open source</strong> — MIT licence</span>
   </div>
 </section>
 
-<main class="max-w-5xl mx-auto px-5 py-8">
-  <h2 class="font-bold text-xl mb-1">AI Agents</h2>
-  <p class="text-sm mb-5" style="color:#8FA6BC">Chat-style agents with memory of the conversation.</p>
-  <div class="grid gap-4 md:grid-cols-2">
-    <a href="study-buddy/" class="card p-5 block">
-      <div class="flex items-center justify-between"><h3 class="font-bold text-lg">StudyBuddy AI</h3><span class="tag">AI AGENT</span></div>
-      <p class="text-sm mt-2" style="color:#BECDDE">Koi bhi topic simple story aur example ke saath samjho. Students ke liye — Hindi, Hinglish ya English, jaise tum likho.</p>
-      <p class="accent text-sm mt-3 font-semibold">Open tool →</p>
-    </a>
-    <a href="code-mentor/" class="card p-5 block">
-      <div class="flex items-center justify-between"><h3 class="font-bold text-lg">CodeMentor AI</h3><span class="tag">AI AGENT</span></div>
-      <p class="text-sm mt-2" style="color:#BECDDE">Code line-by-line samjho, bugs pakdo aur seekh ke fix karo. Ready-made jawab nahi — sahi samajh.</p>
-      <p class="accent text-sm mt-3 font-semibold">Open tool →</p>
-    </a>
-    <a href="business-assistant/" class="card p-5 block">
-      <div class="flex items-center justify-between"><h3 class="font-bold text-lg">Salon &amp; Business Assistant</h3><span class="tag">AI AGENT</span></div>
-      <p class="text-sm mt-2" style="color:#BECDDE">Chhote business ke liye demo customer-support agent. Customer ke sawalon ke jawab aur booking help — apne business ki details daal ke try karo.</p>
-      <p class="accent text-sm mt-3 font-semibold">Open tool →</p>
-    </a>
-    <a href="script-writer/" class="card p-5 block">
-      <div class="flex items-center justify-between"><h3 class="font-bold text-lg">ScriptWriter AI</h3><span class="tag">AI AGENT</span></div>
-      <p class="text-sm mt-2" style="color:#BECDDE">Topic do, short video ki full script lo — hook, body aur CTA, Hindi / Hinglish / English me.</p>
-      <p class="accent text-sm mt-3 font-semibold">Open tool →</p>
-    </a>
-  </div>
+<!-- Tools -->
+<main id="tools" class="max-w-5xl mx-auto px-5 py-12 rule">
+  <p class="eyebrow">01 · The tools</p>
+  <h2 class="text-3xl mt-3" style="font-weight:600">Ten tools, ten finished jobs</h2>
+  <p class="mt-3" style="color:var(--muted);max-width:40em">Four conversational agents with memory, five single-purpose automations, and a prompt library that needs no key and no AI account.</p>
 
-  <h2 class="font-bold text-xl mt-10 mb-1">Automations</h2>
-  <p class="text-sm mb-5" style="color:#8FA6BC">Form bharo, one click me ready output.</p>
-  <div class="grid gap-4 md:grid-cols-2">
-    <a href="whatsapp-studio/" class="card p-5 block">
-      <div class="flex items-center justify-between"><h3 class="font-bold text-lg">WhatsApp Message Studio</h3><span class="tag tag-auto">AUTOMATION</span></div>
-      <p class="text-sm mt-2" style="color:#BECDDE">Business WhatsApp messages ke 3 ready variants + wa.me link. Bina key ke bhi chalta hai — key ho to AI polish bhi.</p>
-      <p class="accent text-sm mt-3 font-semibold">Open tool →</p>
+  <div class="grid gap-4 md:grid-cols-2 mt-8">
+    <a href="study-buddy/" class="card p-6 block">
+      <div class="flex items-start justify-between"><span class="num">01</span><span class="badge">Bring your own key</span></div>
+      <h3 class="font-semibold text-xl mt-3">StudyBuddy AI</h3>
+      <p class="text-sm mt-2 leading-relaxed" style="color:var(--muted)">Any topic explained like a teacher — a short story first, then an example, then the key points and one check question. Hindi, Hinglish or English.</p>
+      <p class="accent text-sm mt-4 font-semibold">Open tool →</p>
     </a>
-    <a href="social-post-generator/" class="card p-5 block">
-      <div class="flex items-center justify-between"><h3 class="font-bold text-lg">Social Post Generator</h3><span class="tag tag-auto">AUTOMATION</span></div>
-      <p class="text-sm mt-2" style="color:#BECDDE">Topic se Instagram / LinkedIn / X ke liye caption, hashtags aur best posting time ki tip.</p>
-      <p class="accent text-sm mt-3 font-semibold">Open tool →</p>
+    <a href="code-mentor/" class="card p-6 block">
+      <div class="flex items-start justify-between"><span class="num">02</span><span class="badge">Bring your own key</span></div>
+      <h3 class="font-semibold text-xl mt-3">CodeMentor AI</h3>
+      <p class="text-sm mt-2 leading-relaxed" style="color:var(--muted)">Paste code and get it explained line by line. Bugs are pointed at the exact line, with the reason — then the fix, and a small practice task.</p>
+      <p class="accent text-sm mt-4 font-semibold">Open tool →</p>
     </a>
-    <a href="email-replier/" class="card p-5 block">
-      <div class="flex items-center justify-between"><h3 class="font-bold text-lg">Email Replier</h3><span class="tag tag-auto">AUTOMATION</span></div>
-      <p class="text-sm mt-2" style="color:#BECDDE">Aaya hua email paste karo, tone chuno, professional reply draft ready.</p>
-      <p class="accent text-sm mt-3 font-semibold">Open tool →</p>
+    <a href="business-assistant/" class="card p-6 block">
+      <div class="flex items-start justify-between"><span class="num">03</span><span class="badge">Bring your own key</span></div>
+      <h3 class="font-semibold text-xl mt-3">Salon &amp; Business Assistant</h3>
+      <p class="text-sm mt-2 leading-relaxed" style="color:var(--muted)">A working demo of a small-business support agent. Put in your own services and prices, then ask questions as a customer would.</p>
+      <p class="accent text-sm mt-4 font-semibold">Open tool →</p>
     </a>
-    <a href="profile-optimizer/" class="card p-5 block">
-      <div class="flex items-center justify-between"><h3 class="font-bold text-lg">Profile Optimizer</h3><span class="tag tag-auto">AUTOMATION</span></div>
-      <p class="text-sm mt-2" style="color:#BECDDE">Apni LinkedIn ya Fiverr bio paste karo — improved versions aur headline options ready.</p>
-      <p class="accent text-sm mt-3 font-semibold">Open tool →</p>
+    <a href="script-writer/" class="card p-6 block">
+      <div class="flex items-start justify-between"><span class="num">04</span><span class="badge">Bring your own key</span></div>
+      <h3 class="font-semibold text-xl mt-3">ScriptWriter AI</h3>
+      <p class="text-sm mt-2 leading-relaxed" style="color:var(--muted)">A topic in, a shoot-ready short-video script out — hook, body, on-screen text and CTA, timed to your chosen duration.</p>
+      <p class="accent text-sm mt-4 font-semibold">Open tool →</p>
     </a>
-    <a href="flow-studio/" class="card p-5 block">
-      <div class="flex items-center justify-between"><h3 class="font-bold text-lg">FlowStudio — WhatsApp Automation Builder</h3><span class="tag tag-auto">AUTOMATION</span></div>
-      <p class="text-sm mt-2" style="color:#BECDDE">n8n-style visual builder: trigger → message → delay blocks jodo, apni khud ki Meta WhatsApp Cloud API se flow chalao. Lead form demo aur ready recipes ke saath. Credentials sirf tumhare browser me.</p>
-      <p class="accent text-sm mt-3 font-semibold">Open tool →</p>
+    <a href="whatsapp-studio/" class="card p-6 block">
+      <div class="flex items-start justify-between"><span class="num">05</span><span class="badge badge-free">No key needed</span></div>
+      <h3 class="font-semibold text-xl mt-3">WhatsApp Message Studio</h3>
+      <p class="text-sm mt-2 leading-relaxed" style="color:var(--muted)">Three ready-to-send business WhatsApp messages — offers, reminders, festival greetings, follow-ups — with copy buttons and a wa.me link. Templates work with no key; an optional key adds AI polish.</p>
+      <p class="accent text-sm mt-4 font-semibold">Open tool →</p>
+    </a>
+    <a href="flow-studio/" class="card p-6 block">
+      <div class="flex items-start justify-between"><span class="num">06</span><span class="badge">Your own credentials</span></div>
+      <h3 class="font-semibold text-xl mt-3">FlowStudio</h3>
+      <p class="text-sm mt-2 leading-relaxed" style="color:var(--muted)">A visual builder for WhatsApp automation: chain trigger, message and delay blocks, then run the flow through your own Meta WhatsApp Cloud API account. Recipes and a lead-form demo included.</p>
+      <p class="accent text-sm mt-4 font-semibold">Open tool →</p>
+    </a>
+    <a href="social-post-generator/" class="card p-6 block">
+      <div class="flex items-start justify-between"><span class="num">07</span><span class="badge">Bring your own key</span></div>
+      <h3 class="font-semibold text-xl mt-3">Social Post Generator</h3>
+      <p class="text-sm mt-2 leading-relaxed" style="color:var(--muted)">One topic becomes a ready post for Instagram, LinkedIn or X — caption, hashtags and a posting-time tip, in your tone and language.</p>
+      <p class="accent text-sm mt-4 font-semibold">Open tool →</p>
+    </a>
+    <a href="email-replier/" class="card p-6 block">
+      <div class="flex items-start justify-between"><span class="num">08</span><span class="badge">Bring your own key</span></div>
+      <h3 class="font-semibold text-xl mt-3">Email Replier</h3>
+      <p class="text-sm mt-2 leading-relaxed" style="color:var(--muted)">Paste an incoming email, choose a tone, get a reply draft that answers every point — without inventing facts or promises.</p>
+      <p class="accent text-sm mt-4 font-semibold">Open tool →</p>
+    </a>
+    <a href="profile-optimizer/" class="card p-6 block">
+      <div class="flex items-start justify-between"><span class="num">09</span><span class="badge">Bring your own key</span></div>
+      <h3 class="font-semibold text-xl mt-3">Profile Optimizer</h3>
+      <p class="text-sm mt-2 leading-relaxed" style="color:var(--muted)">Paste a LinkedIn or Fiverr bio and get three headline options and two rewritten versions. It sharpens what is true — it never adds experience you do not have.</p>
+      <p class="accent text-sm mt-4 font-semibold">Open tool →</p>
+    </a>
+    <a href="prompt-library/" class="card p-6 block">
+      <div class="flex items-start justify-between"><span class="num">10</span><span class="badge badge-free">No key needed</span></div>
+      <h3 class="font-semibold text-xl mt-3">Prompt Library</h3>
+      <p class="text-sm mt-2 leading-relaxed" style="color:var(--muted)">Copy-ready prompts for studying, coding, exams and interviews. Paste them into any AI chat — or into the tools above. No account, no key.</p>
+      <p class="accent text-sm mt-4 font-semibold">Open library →</p>
     </a>
   </div>
 </main>
 
-<footer class="max-w-5xl mx-auto px-5 pb-12 text-center text-sm" style="color:#8FA6BC">
-  <p>Built by <strong class="text-white">Satyam Kumar</strong> · SatyamLabs · Part of the AI Agents &amp; Automation demos for his portfolio.</p>
-  <p class="mt-2">Source code: <a class="accent" href="https://github.com/satyamkumar-builds/ai-agents-lab">github.com/satyamkumar-builds/ai-agents-lab</a></p>
-  <p class="mt-2 text-xs">Honest note: these are working demo tools. AI answers come from the provider your key belongs to — quality depends on the model you choose.</p>
+<!-- How BYOK works -->
+<section id="how" class="max-w-5xl mx-auto px-5 py-12 rule">
+  <p class="eyebrow">02 · How it works</p>
+  <h2 class="text-3xl mt-3" style="font-weight:600">Bring your own key — it never leaves your browser</h2>
+  <div class="grid gap-8 md:grid-cols-3 mt-8">
+    <div>
+      <p class="step-num">1</p>
+      <h3 class="font-semibold mt-3">Get a free key</h3>
+      <p class="text-sm mt-2 leading-relaxed" style="color:var(--muted)">A Google Gemini API key from <span class="accent">aistudio.google.com/apikey</span> takes about a minute. OpenRouter and Groq keys work too.</p>
+    </div>
+    <div>
+      <p class="step-num">2</p>
+      <h3 class="font-semibold mt-3">Paste it into a tool</h3>
+      <p class="text-sm mt-2 leading-relaxed" style="color:var(--muted)">The key is saved in your browser's local storage — on your device only. There is no account and no server to send it to.</p>
+    </div>
+    <div>
+      <p class="step-num">3</p>
+      <h3 class="font-semibold mt-3">Work, copy, download</h3>
+      <p class="text-sm mt-2 leading-relaxed" style="color:var(--muted)">Requests go straight from your browser to the AI provider. Outputs can be copied or downloaded, and your recent work stays in your browser for next time.</p>
+    </div>
+  </div>
+  <p class="text-sm mt-8" style="color:var(--muted)">FlowStudio works the same way with your Meta WhatsApp credentials instead of an AI key. WhatsApp Message Studio's templates and the Prompt Library need nothing at all.</p>
+</section>
+
+<!-- Inside the tools -->
+<section class="max-w-5xl mx-auto px-5 py-12 rule">
+  <p class="eyebrow">03 · Inside the tools</p>
+  <h2 class="text-3xl mt-3" style="font-weight:600">What each one actually gives you</h2>
+  <div class="grid gap-10 md:grid-cols-2 mt-10">
+
+    <div>
+      <h3 class="font-semibold text-lg">StudyBuddy AI</h3>
+      <p class="text-sm mt-2 leading-relaxed" style="color:var(--muted)">Built for students who are told to "just read the chapter". Every explanation follows the same teaching order: story, example, key points, check question.</p>
+      <p class="eyebrow mt-4" style="letter-spacing:.12em">Example output</p>
+      <div class="example mt-2">Topic: Photosynthesis
+Story: Ek paudha ek chhoti si factory hai...
+Example: Jaise tum khana banate ho, waise paudha sunlight se apna khana banata hai.
+Key points: sunlight + water + CO2 → glucose + oxygen.
+Check: Agar paudhe ko 2 din andhere me rakho, to kya hoga?</div>
+    </div>
+
+    <div>
+      <h3 class="font-semibold text-lg">CodeMentor AI</h3>
+      <p class="text-sm mt-2 leading-relaxed" style="color:var(--muted)">A mentor, not an answer machine. It explains before it fixes, names the concept behind every bug, and ends with a practice task on the same idea.</p>
+      <p class="eyebrow mt-4" style="letter-spacing:.12em">Example output</p>
+      <div class="example mt-2">Bug: line 3 — loop i &lt;= marks.length tak chalta hai.
+Reason: array ka last index length-1 hota hai, isliye last round me undefined print hota hai.
+Fix: i &lt; marks.length
+Practice: ab ek loop likho jo array ko ulta print kare.</div>
+    </div>
+
+    <div>
+      <h3 class="font-semibold text-lg">Salon &amp; Business Assistant</h3>
+      <p class="text-sm mt-2 leading-relaxed" style="color:var(--muted)">See how a support agent for your own shop would behave before you pay anyone to build one. It answers only from the details you give it — and says so when it does not know.</p>
+      <p class="eyebrow mt-4" style="letter-spacing:.12em">Example output</p>
+      <div class="example mt-2">Customer: Haircut ka price kya hai?
+Agent: Haircut ₹199 hai. Beard ke saath combo ₹249 me padega. Kal ke liye booking karun?</div>
+    </div>
+
+    <div>
+      <h3 class="font-semibold text-lg">ScriptWriter AI</h3>
+      <p class="text-sm mt-2 leading-relaxed" style="color:var(--muted)">Structured scripts, not paragraphs of advice: title, a hook written for the first three seconds, body lines timed to your duration, on-screen text and a CTA.</p>
+      <p class="eyebrow mt-4" style="letter-spacing:.12em">Example output</p>
+      <div class="example mt-2">TITLE: Line me khade hona band karo
+HOOK (0–3s): Salon jao aur seedha chair par baitho, bina line ke.
+BODY: ...
+ON-SCREEN TEXT: No lines. No waiting.
+CTA: Comment me LINK likho, tool ka link bhej dunga.</div>
+    </div>
+
+    <div>
+      <h3 class="font-semibold text-lg">WhatsApp Message Studio</h3>
+      <p class="text-sm mt-2 leading-relaxed" style="color:var(--muted)">45 ready templates across five purposes and three languages. Fill in your business name and the offer; get three variants you can copy or open directly in WhatsApp.</p>
+      <p class="eyebrow mt-4" style="letter-spacing:.12em">Example output</p>
+      <div class="example mt-2">Namaste Rahul ji! Glow &amp; Shine Salon se ek khaas khabar hai.
+Haircut + Beard combo sirf ₹249, is Sunday tak.
+Apna time book karne ke liye isi number par reply karein.</div>
+    </div>
+
+    <div>
+      <h3 class="font-semibold text-lg">FlowStudio</h3>
+      <p class="text-sm mt-2 leading-relaxed" style="color:var(--muted)">Automation you can see. Blocks make the flow readable — trigger, template message, delay, follow-up — and a live log shows every send and every error, honestly.</p>
+      <p class="eyebrow mt-4" style="letter-spacing:.12em">Example log</p>
+      <div class="example mt-2">[10:02:11] ▶ RUN shuru (Manual run) — 1 recipient, 4 blocks.
+[10:02:12] Step 2: ✓ template "hello_world" bheja gaya +91…
+[10:02:18] Step 4: ✓ text message bheja gaya +91…
+[10:02:18] ■ RUN khatm — sent: 2, failed: 0.</div>
+    </div>
+
+    <div>
+      <h3 class="font-semibold text-lg">Social Post Generator</h3>
+      <p class="text-sm mt-2 leading-relaxed" style="color:var(--muted)">Platform rules are built in: hashtags counted for Instagram, a tighter format for LinkedIn, under 280 characters for X — plus a posting-time tip for each.</p>
+      <p class="eyebrow mt-4" style="letter-spacing:.12em">Example output</p>
+      <div class="example mt-2">Salon aaye, line me khade rahe, aadha din gaya.
+Ab token phone par, time par seedha chair.
+#SalonLife #SmallBusiness #India</div>
+    </div>
+
+    <div>
+      <h3 class="font-semibold text-lg">Email Replier</h3>
+      <p class="text-sm mt-2 leading-relaxed" style="color:var(--muted)">Drafts that answer every point in the email and stop there — no invented dates, prices or promises. Five tones, from friendly to firm.</p>
+      <p class="eyebrow mt-4" style="letter-spacing:.12em">Example output</p>
+      <div class="example mt-2">Hello Rakesh ji,
+Thank you for writing. A simple shop website with a product catalogue and WhatsApp ordering is possible.
+I will share the exact quotation and timeline by tomorrow evening.
+— Satyam Kumar</div>
+    </div>
+
+    <div>
+      <h3 class="font-semibold text-lg">Profile Optimizer</h3>
+      <p class="text-sm mt-2 leading-relaxed" style="color:var(--muted)">Three headline options, two bio versions and a short list of what changed and why. A student sounds like a strong student — never a fake CEO.</p>
+      <p class="eyebrow mt-4" style="letter-spacing:.12em">Example output</p>
+      <div class="example mt-2">HEADLINE OPTIONS (3):
+1. BTech CSE Student · I build websites with React &amp; Firebase
+2. Frontend Developer (Student) · Open to freelance projects
+WHAT I CHANGED: "I like coding" hata kar real skills aur projects aage laye.</div>
+    </div>
+
+    <div>
+      <h3 class="font-semibold text-lg">Prompt Library</h3>
+      <p class="text-sm mt-2 leading-relaxed" style="color:var(--muted)">The prompts students actually reuse — Feynman explanations, mock viva, bug hunts, interview practice — written with placeholders so one prompt fits any subject.</p>
+      <p class="eyebrow mt-4" style="letter-spacing:.12em">Example prompt</p>
+      <div class="example mt-2">Explain [topic] to me like a teacher: first a tiny real-life story, then a simple example, then the key points in bullets. End with one question to test me. If I answer wrong, correct me gently and explain again.</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="max-w-5xl mx-auto px-5 py-12 rule">
+  <p class="eyebrow">04 · Questions</p>
+  <h2 class="text-3xl mt-3" style="font-weight:600">Before you ask</h2>
+  <div class="mt-6">
+    <details>
+      <summary>Is it really free?</summary>
+      <p>Yes. The Lab is open source under the MIT licence and there is nothing to buy here. The AI tools use your own API key — Gemini's free tier is enough for normal use. WhatsApp Message Studio's templates and the Prompt Library cost nothing at all.</p>
+    </details>
+    <details>
+      <summary>Where does my API key go?</summary>
+      <p>Into your browser's local storage, and from your browser directly to the provider you chose (Google, OpenRouter or Groq). There is no Lab server, so your key is never sent to us. You can check this in the source — every page is plain HTML and JavaScript.</p>
+    </details>
+    <details>
+      <summary>Why bring my own key instead of just using a chatbot?</summary>
+      <p>A general chatbot gives you a conversation; these tools are shaped around one job each — a fixed script format, platform-specific post rules, templates that follow WhatsApp's compliance rules. Same model underneath, but the output is finished work you can copy, download and reuse.</p>
+    </details>
+    <details>
+      <summary>Can I use the code in my own project?</summary>
+      <p>Yes — that is what the MIT licence is for. Copy it, change it, ship it; keep the licence notice. If you improve something, a pull request on GitHub is welcome.</p>
+    </details>
+    <details>
+      <summary>What are the honest limits?</summary>
+      <p>These are small, single-purpose tools, not a platform. FlowStudio runs only while its page is open — there is no background server. AI answers depend on the model behind your key. Everything here favours being clear about that over pretending otherwise.</p>
+    </details>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="max-w-5xl mx-auto px-5 py-12 rule text-sm" style="color:var(--muted)">
+  <div class="flex flex-wrap justify-between gap-6">
+    <div>
+      <p style="color:var(--ink)" class="font-semibold">AI Agents Lab</p>
+      <p class="mt-2">Built by Satyam Kumar · SatyamLabs</p>
+      <p class="mt-1">Open source under the MIT licence.</p>
+    </div>
+    <div class="flex gap-10">
+      <div class="flex flex-col gap-2">
+        <span class="eyebrow">Project</span>
+        <a href="https://github.com/satyamkumar-builds/ai-agents-lab" target="_blank" rel="noopener">GitHub</a>
+        <a href="prompt-library/">Prompt Library</a>
+        <a href="#how">How it works</a>
+      </div>
+      <div class="flex flex-col gap-2">
+        <span class="eyebrow">Satyam Kumar</span>
+        <a href="https://satyamkumar-builds.github.io/animated-portfolio/" target="_blank" rel="noopener">Portfolio</a>
+        <a href="https://www.linkedin.com/in/satyam-kumar-202b15417/" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://x.com/satyam_builds" target="_blank" rel="noopener">X</a>
+      </div>
+    </div>
+  </div>
+  <p class="mt-8 text-xs">Honest note: AI answers come from the provider your key belongs to — quality depends on the model you choose. Nothing on this site tracks you or stores your data.</p>
 </footer>
 </body>
 </html>
